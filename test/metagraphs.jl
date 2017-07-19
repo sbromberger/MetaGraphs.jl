@@ -251,13 +251,40 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
     
     mg = MetaGraph(CompleteGraph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
-    set_prop!(mg, 3, :color, "red")
+    set_prop!(mg, 1, :id, 40)
+    set_prop!(mg, 2, :color, "red")
+    set_prop!(mg, 2, :id, 80)
+    set_prop!(mg, 3, :color, "blue")
     set_prop!(mg, 1, 2, :weight, 0.2)
     set_prop!(mg, 2, 3, :weight, 0.6)
     @test length(collect(filter_edges(mg, :weight))) == 2
     @test length(collect(filter_edges(mg, :weight, 0.2))) == 1
-    @test length(collect(filter_vertices(mg, :color))) == 2
-    @test length(collect(filter_vertices(mg, :color, "red"))) == 1
+    @test length(collect(filter_vertices(mg, :color))) == 3
+    @test length(collect(filter_vertices(mg, :color, "blue"))) == 2
 
-    
+    fv1 = filter_vertices(mg, :id)
+    fv2 = filter_vertices(mg, :color, "blue")
+    fe1 = filter_edges(mg, :weight)
+    fe2 = filter_edges(mg, :weight, 0.6)
+
+    i = mg[fv1]
+    @test nv(i) == 2 && ne(i) == 1
+    @test has_prop(i, 1, :id)
+    @test has_prop(i, 2, :id)
+
+    i = mg[fv2]
+    @test nv(i) == 2 && ne(i) == 1
+    @test get_prop(i, 1, :color) == "blue"
+    @test get_prop(i, 2, :color) == "blue"
+
+    i = mg[fe1]
+    @test nv(i) == 3 && ne(i) == 2
+    @test sum(get_prop(i, e, :weight) for e in edges(i)) == 0.8
+
+    i = mg[fe2]
+    @test nv(i) == 2 && ne(i) == 1
+    @test get_prop(i, 1, :color) == "red"
+    @test get_prop(i, 2, :color) == "blue"
+    @test get_prop(i, 1, 2, :weight) == 0.6
+
 end
