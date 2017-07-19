@@ -32,10 +32,10 @@ export
     rem_prop!,
     has_prop,
     clear_props!,
-    set_weightfield!,
-    set_defaultweight!,
-    get_weightfield,
-    get_defaultweight,
+    weightfield!,
+    defaultweight!,
+    weightfield,
+    defaultweight,
     filter_edges,
     filter_vertices
 
@@ -221,40 +221,40 @@ clear_props!(g::AbstractMetaGraph) = g.gprops = PropDict()
 clear_props!(g::AbstractMetaGraph, u::Integer, v::Integer) = clear_props!(g, Edge(u, v))
 
 """
-    set_weightfield!(g, prop)
+    weightfield!(g, prop)
 
 Set the field that contains weight information to `prop`.
 """
-set_weightfield!(g::AbstractMetaGraph, prop::Symbol) = (g.weightfield = prop)
+weightfield!(g::AbstractMetaGraph, prop::Symbol) = (g.weightfield = prop)
 
 """
-    get_weightfield(g)
+    weightfield(g)
 
 Return the field that contains weight information for metagraph `g`.
 """
-get_weightfield(g::AbstractMetaGraph) = g.weightfield
+weightfield(g::AbstractMetaGraph) = g.weightfield
 
 """
-    set_defaultweight!(g, weight)
+    defaultweight!(g, weight)
 
 Set the default weight for metagraph `g`
 """
-set_defaultweight!(g::AbstractMetaGraph, weight::Real) =
+defaultweight!(g::AbstractMetaGraph, weight::Real) =
     g.defaultweight = weight
 """
-    get_defaultweight(g)
+    defaultweight(g)
 
 Return the default weight for metagraph `g`.
 """
-get_defaultweight(g::AbstractMetaGraph) = g.defaultweight
+defaultweight(g::AbstractMetaGraph) = g.defaultweight
 
 """
     filter_edges(g, prop[, val])
     filter_edges(g, fn)
 
 Return an iterator to all edges that have property `prop` defined (optionally
-as `val`, or where function `fn` returns `true` only for edges that should be
-included in the iterator).
+as `val`), or where function `fn` returns `true` only for edges that should be
+included in the iterator.
 
 `fn` should be of the form
 ```
@@ -276,8 +276,8 @@ filter_edges(g::AbstractMetaGraph, prop::Symbol, val) =
     filter_vertices(g, fn)
 
 Return an iterator to all vertices that have property `prop` defined (optionally
-as `val`, or where function `fn` returns `true` only for vertices that should be
-included in the iterator).
+as `val`), or where function `fn` returns `true` only for vertices that should be
+included in the iterator.
 
 `fn` should be of the form
 ```
@@ -315,8 +315,8 @@ function _copy_props!(oldg::T, newg::T, vmap) where T <: AbstractMetaGraph
     if !isempty(oldg.gprops)
         set_props!(newg, oldg.gprops)
     end
-    set_defaultweight!(newg, get_defaultweight(oldg))
-    set_weightfield!(newg, get_weightfield(oldg))
+    defaultweight!(newg, defaultweight(oldg))
+    weightfield!(newg, weightfield(oldg))
     return nothing
 end
 
