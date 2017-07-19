@@ -250,27 +250,49 @@ get_defaultweight(g::AbstractMetaGraph) = g.defaultweight
 
 """
     filter_edges(g, prop[, val])
+    filter_edges(g, fn)
 
 Return an iterator to all edges that have property `prop` defined (optionally
-as `val`).
+as `val`, or where function `fn` returns `true` only for edges that should be
+included in the iterator).
+
+`fn` should be of the form
+```
+fn(g::AbstractMetaGraph, e::AbstractEdge)::Boolean
+```
+where `e` is replaced with the edge being evaluated.
 """
+filter_edges(g::AbstractMetaGraph, fn::Function) =
+    Iterators.filter(e -> fn(g, e), edges(g))
+
 filter_edges(g::AbstractMetaGraph, prop::Symbol) =
-    Iterators.filter(x -> has_prop(g, x, prop), edges(g))
+    filter_edges(g, (g, e) -> has_prop(g, e, prop))
 
 filter_edges(g::AbstractMetaGraph, prop::Symbol, val) =
-    Iterators.filter(x -> has_prop(g, x, prop) && get_prop(g, x, prop) == val, edges(g))
+    filter_edges(g, (g, e) -> has_prop(g, e, prop) && get_prop(g, e, prop) == val)
 
 """
     filter_vertices(g, prop[, val])
+    filter_vertices(g, fn)
 
 Return an iterator to all vertices that have property `prop` defined (optionally
-as `val`).
+as `val`, or where function `fn` returns `true` only for vertices that should be
+included in the iterator).
+
+`fn` should be of the form
+```
+fn(g::AbstractMetaGraph, v::Integer)::Boolean
+```
+where `v` is replaced with the vertex being evaluated.
 """
+filter_vertices(g::AbstractMetaGraph, fn::Function) =
+    Iterators.filter(x -> fn(g, x), vertices(g))
+
 filter_vertices(g::AbstractMetaGraph, prop::Symbol) =
-    Iterators.filter(x -> has_prop(g, x, prop), vertices(g))
+    filter_vertices(g, (g, x) -> has_prop(g, x, prop))
 
 filter_vertices(g::AbstractMetaGraph, prop::Symbol, val) =
-    Iterators.filter(x -> has_prop(g, x, prop) && get_prop(g, x, prop) == val, vertices(g))
+    filter_vertices(g, (g, x) -> has_prop(g, x, prop) && get_prop(g, x, prop) == val)
 
 function _copy_props!(oldg::T, newg::T, vmap) where T <: AbstractMetaGraph
     for (newv, oldv) in enumerate(vmap)
