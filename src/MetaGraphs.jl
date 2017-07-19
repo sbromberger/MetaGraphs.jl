@@ -176,7 +176,7 @@ set_props!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict) = set_props!(g
 Set (replace) property `prop` with value `val` in graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
 """
-set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = g.gprops[prop] = val
+set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = set_props!(g, v, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, e::AbstractEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 

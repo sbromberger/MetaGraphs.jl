@@ -8,7 +8,7 @@
 
 Example usage:
 
-```julia
+```julia-repl
 julia> using LightGraphs, MetaGraphs
 
 # create a standard simplegraph
@@ -17,11 +17,12 @@ julia> g = PathGraph(5)
 
 # create a metagraph based on the simplegraph, with optional default edgeweight
 julia> mg = MetaGraph(g, 3.0)
-{5, 4} undirected Int64 metagraph with weights defined by :weight (default weight 3.0)
+{5, 4} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 3.0)
 
 # set some properties for the graph itself
 julia> set_prop!(mg, :description, "This is a metagraph.")
-"This is a metagraph."
+Dict{Symbol,Any} with 1 entry:
+  :description => "This is a metagraph."
 
 # set properties on a vertex in bulk
 julia> set_props!(mg, 1, Dict(:name=>"Susan", :id => 123))
@@ -40,9 +41,9 @@ Dict{Symbol,String} with 1 entry:
   :action => "knows"
 
 # set another property on an edge by specifying source and destination
-julia> set_prop!(mg, 1, 2, :cost, 3.456)
+julia> set_prop!(mg, 1, 2, :since, Date("20170501", "yyyymmdd"))
 Dict{Symbol,Any} with 2 entries:
-  :cost   => 3.456
+  :since   => 2017-05-01
   :action => "knows"
 
 # get all the properties for an element
@@ -79,7 +80,7 @@ julia> betweenness_centrality(mg)
 
 # using weights
 julia> mg = MetaGraph(CompleteGraph(3))
-{3, 3} undirected Int64 metagraph with weights defined by :weight (default weight 1.0)
+{3, 3} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
 
 julia> enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
 2-element Array{Int64,1}:
