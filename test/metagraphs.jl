@@ -245,9 +245,19 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
     @test length(set_props!(mg, 1, 2,  Dict(:color=>:blue, :action=>"knows"))) == 3
-    167	
     @test rem_edge!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
     @test length(set_props!(mg, Dict(:name=>"testgraph", :type=>"undirected"))) == 2
+    
+    mg = MetaGraph(CompleteGraph(3), 3.0)
+    set_prop!(mg, 1, :color, "blue")
+    set_prop!(mg, 3, :color, "red")
+    set_prop!(mg, 1, 2, :weight, 0.2)
+    set_prop!(mg, 2, 3, :weight, 0.6)
+    @test length(collect(filter_edges(mg, :weight))) == 2
+    @test length(collect(filter_edges(mg, :weight, 0.2))) == 1
+    @test length(collect(filter_vertices(mg, :color))) == 2
+    @test length(collect(filter_vertices(mg, :color, "red"))) == 1
+
     
 end
