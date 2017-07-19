@@ -31,7 +31,9 @@ export
     rem_prop!,
     has_prop,
     clear_props!,
-    set_weightfield!
+    set_weightfield!,
+    filter_edges,
+    filter_vertices
 
 const PropDict = Dict{Symbol,Any}
 abstract type AbstractMetaGraph <: AbstractGraph end
@@ -220,6 +222,30 @@ clear_props!(g::AbstractMetaGraph, u::Integer, v::Integer) = clear_props!(g, Edg
 Sets the field that contains weight information to `prop`.
 """
 set_weightfield!(g::AbstractMetaGraph, prop::Symbol) = (g.weightfield = prop)
+
+"""
+    filter_edges(g, prop[, val])
+
+Return an iterator to all edges that have property `prop` defined (optionally
+as `val`).
+"""
+filter_edges(g::AbstractMetaGraph, prop::Symbol) =
+    Iterators.filter(x -> has_prop(g, x, prop), edges(g))
+
+filter_edges(g::AbstractMetaGraph, prop::Symbol, val) =
+    Iterators.filter(x -> has_prop(g, x, prop) && get_prop(g, x, prop) == val, edges(g))
+
+"""
+    filter_vertices(g, prop[, val])
+
+Return an iterator to all vertices that have property `prop` defined (optionally
+as `val`).
+"""
+filter_vertices(g::AbstractMetaGraph, prop::Symbol) =
+    Iterators.filter(x -> has_prop(g, x, prop), vertices(g))
+
+filter_vertices(g::AbstractMetaGraph, prop::Symbol, val) =
+    Iterators.filter(x -> has_prop(g, x, prop) && get_prop(g, x, prop) == val, vertices(g))
 
 # TODO - would be nice to be able to apply a function to properties. Not sure
 # how this might work, but if the property is a vector, a generic way to append to
