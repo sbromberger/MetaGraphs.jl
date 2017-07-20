@@ -253,7 +253,7 @@ defaultweight(g::AbstractMetaGraph) = g.defaultweight
     filter_edges(g, fn)
 
 Return an iterator to all edges that have property `prop` defined (optionally
-as `val`, or where function `fn` returns `true` only for edges that should be
+as `val`), or where function `fn` returns `true` only for edges that should be
 included in the iterator).
 
 `fn` should be of the form
@@ -276,7 +276,7 @@ filter_edges(g::AbstractMetaGraph, prop::Symbol, val) =
     filter_vertices(g, fn)
 
 Return an iterator to all vertices that have property `prop` defined (optionally
-as `val`, or where function `fn` returns `true` only for vertices that should be
+as `val`), or where function `fn` returns `true` only for vertices that should be
 included in the iterator).
 
 `fn` should be of the form
