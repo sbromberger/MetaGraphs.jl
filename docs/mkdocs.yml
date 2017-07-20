@@ -1,0 +1,30 @@
+site_name: MetaGraphs.jl
+site_author: Seth Bromberger
+repo_url: https://github.com/JuliaGraphs/MetaGraphs.jl/
+docs_dir: 'build'
+
+theme: material
+
+extra:
+  palette:
+    primary: 'indigo'
+    accent:  'blue'
+
+pages:
+  - 'Getting Started': 'index.md'
+  - 'MetaGraphs': 'metagraphs.md'
+  - 'License Information': 'license.md'
+
+extra_css:
+  - assets/Documenter.css
+
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math:
+      enable_dollar_delimiter: True
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
