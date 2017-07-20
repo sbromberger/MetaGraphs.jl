@@ -12,7 +12,7 @@
         <meta name="author" content="Seth Bromberger">
       
       
-        <link rel="shortcut icon" href="./assets/images/favicon.png">
+        <link rel="shortcut icon" href="/assets/images/favicon.png">
       
       <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.4">
     
@@ -22,12 +22,12 @@
       
     
     
-      <script src="./assets/javascripts/modernizr-1df76c4e58.js"></script>
+      <script src="/assets/javascripts/modernizr-1df76c4e58.js"></script>
     
     
-      <link rel="stylesheet" href="./assets/stylesheets/application-769c285a91.css">
+      <link rel="stylesheet" href="/assets/stylesheets/application-769c285a91.css">
       
-        <link rel="stylesheet" href="./assets/stylesheets/application-02c2a4388f.palette.css">
+        <link rel="stylesheet" href="/assets/stylesheets/application-02c2a4388f.palette.css">
       
     
     
@@ -41,7 +41,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="./assets/Documenter.css">
+      <link rel="stylesheet" href="/assets/Documenter.css">
     
     
   </head>
@@ -68,7 +68,7 @@
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <a href="." title="MetaGraphs.jl" class="md-icon md-icon--home md-header-nav__button">
+          <a href="/" title="MetaGraphs.jl" class="md-icon md-icon--home md-header-nav__button">
           </a>
         
       </div>
@@ -79,9 +79,7 @@
         <span class="md-flex__ellipsis md-header-nav__title">
           
             
-              
-            
-            Getting Started
+            MetaGraphs.jl
           
         </span>
       </div>
@@ -186,20 +184,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-    <a href="." title="Getting Started" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="/" title="Getting Started" class="md-nav__link">
       Getting Started
     </a>
-    
   </li>
 
     
@@ -209,7 +198,7 @@
 
 
   <li class="md-nav__item">
-    <a href="metagraphs/" title="MetaGraphs" class="md-nav__link">
+    <a href="/metagraphs/" title="MetaGraphs" class="md-nav__link">
       MetaGraphs
     </a>
   </li>
@@ -221,7 +210,7 @@
 
 
   <li class="md-nav__item">
-    <a href="license/" title="License Information" class="md-nav__link">
+    <a href="/license/" title="License Information" class="md-nav__link">
       License Information
     </a>
   </li>
@@ -234,130 +223,12 @@
               </div>
             
             
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
               
-                
-                  <a href="https://github.com/JuliaGraphs/MetaGraphs.jl/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
-                
-                
-                <p><a id='MetaGraphs-1'></a></p>
-<h1 id="metagraphs">MetaGraphs</h1>
-<p><a href="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl"><img alt="Build Status" src="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl.svg?branch=master" /></a> <a href="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl?branch=master"><img alt="codecov.io" src="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl/coverage.svg?branch=master" /></a></p>
-<p><a href="https://github.com/JuliaGraphs/LightGraphs.jl">LightGraphs.jl</a> graphs with arbitrary metadata.</p>
-<p>Example usage:</p>
-<pre><code class="julia-repl">julia&gt; using LightGraphs, MetaGraphs
+  <h1>404 - Not found</h1>
 
-# create a standard simplegraph
-julia&gt; g = PathGraph(5)
-{5, 4} undirected simple Int64 graph
-
-# create a metagraph based on the simplegraph, with optional default edgeweight
-julia&gt; mg = MetaGraph(g, 3.0)
-{5, 4} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 3.0)
-
-# set some properties for the graph itself
-julia&gt; set_prop!(mg, :description, &quot;This is a metagraph.&quot;)
-Dict{Symbol,Any} with 1 entry:
-  :description =&gt; &quot;This is a metagraph.&quot;
-
-# set properties on a vertex in bulk
-julia&gt; set_props!(mg, 1, Dict(:name=&gt;&quot;Susan&quot;, :id =&gt; 123))
-Dict{Symbol,Any} with 2 entries:
-  :id   =&gt; 123
-  :name =&gt; &quot;Susan&quot;
-
-# set individual properties
-julia&gt; set_prop!(mg, 2, :name, &quot;John&quot;)
-Dict{Symbol,String} with 1 entry:
-  :name =&gt; &quot;John&quot;
-
-# set a property on an edge
-julia&gt; set_prop!(mg, Edge(1, 2), :action, &quot;knows&quot;)
-Dict{Symbol,String} with 1 entry:
-  :action =&gt; &quot;knows&quot;
-
-# set another property on an edge by specifying source and destination
-julia&gt; set_prop!(mg, 1, 2, :since, Date(&quot;20170501&quot;, &quot;yyyymmdd&quot;))
-Dict{Symbol,Any} with 2 entries:
-  :since   =&gt; 2017-05-01
-  :action =&gt; &quot;knows&quot;
-
-# get all the properties for an element
-julia&gt; props(mg, 1)
-Dict{Symbol,Any} with 2 entries:
-  :id   =&gt; 123
-  :name =&gt; &quot;Susan&quot;
-
-# get a specific property by name
-julia&gt; get_prop(mg, 2, :name)
-&quot;John&quot;
-
-# delete a specific property
-julia&gt; rem_prop!(mg, 1, :name)
-Dict{Symbol,Any} with 1 entry:
-  :id =&gt; 123
-
-# clear all properties for vertex 2
-julia&gt; clear_props!(mg, 2)
-Dict{Symbol,Any} with 0 entries
-
-# confirm there are no properties set for vertex 2
-julia&gt; props(mg, 2)
-Dict{Symbol,Any} with 0 entries
-
-# all LightGraphs analytics work
-julia&gt; betweenness_centrality(mg)
-5-element Array{Float64,1}:
- 0.0
- 0.5
- 0.666667
- 0.5
- 0.0
-
-# using weights
-julia&gt; mg = MetaGraph(CompleteGraph(3))
-{3, 3} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
-
-julia&gt; enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
-2-element Array{Int64,1}:
- 1
- 3
-
-julia&gt; set_prop!(mg, 1, 2, :weight, 0.2)
-Dict{Symbol,Float64} with 1 entry:
-  :weight =&gt; 0.2
-
-julia&gt; set_prop!(mg, 2, 3, :weight, 0.6)
-Dict{Symbol,Float64} with 1 entry:
-  :weight =&gt; 0.6
-
-julia&gt; enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
-3-element Array{Int64,1}:
- 1
- 2
- 3
-</code></pre>
-                
-                  
-                
-              
               
                 
               
@@ -368,27 +239,6 @@ julia&gt; enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid">
-        
-        
-          <a href="metagraphs/" title="MetaGraphs" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                MetaGraphs
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -409,14 +259,14 @@ julia&gt; enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
       
     </div>
     
-      <script src="./assets/javascripts/application-c35428f87f.js"></script>
+      <script src="/assets/javascripts/application-c35428f87f.js"></script>
       
       
-      <script>app.initialize({url:{base:"."}})</script>
+      <script>app.initialize({url:{base:""}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
       
-        <script src="./assets/mathjaxhelper.js"></script>
+        <script src="/assets/mathjaxhelper.js"></script>
       
     
     
