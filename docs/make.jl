@@ -8,7 +8,7 @@ cp(normpath(@__FILE__, "../../README.md"), normpath(@__FILE__, "../src/index.md"
 # same for license
 cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.md"); remove_destination=true)
 
-makedocs(modules=[MetaGraphs], doctest = false)
+makedocs(modules=[MetaGraphs], doctest = true)
 
 
 deploydocs(
