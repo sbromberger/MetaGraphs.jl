@@ -2,12 +2,21 @@
 
 [![Build Status](https://travis-ci.org/JuliaGraphs/MetaGraphs.jl.svg?branch=master)](https://travis-ci.org/JuliaGraphs/MetaGraphs.jl)
 [![codecov.io](http://codecov.io/github/JuliaGraphs/MetaGraphs.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaGraphs/MetaGraphs.jl?branch=master)
-
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliagraphs.github.io/MetaGraphs.jl/latest)
 
 [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl) graphs with arbitrary metadata.
 
-Example usage:
+## Documentation
+Full documentation is available at [GitHub Pages](https://juliagraphs.github.io/MetaGraphs.jl/latest).
+Documentation for methods is also available via the Julia REPL help system.
 
+## Installation
+Installation is straightforward:
+```julia-repl
+julia> Pkg.add("MetaGraphs")
+```
+
+## Example Usage
 ```julia-repl
 julia> using LightGraphs, MetaGraphs
 

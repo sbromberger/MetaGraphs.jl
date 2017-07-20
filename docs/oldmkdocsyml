@@ -1,0 +1,26 @@
+site_name:        MetaGraphs.jl
+repo_url:         https://github.com/JuliaGraphs/MetaGraphs.jl
+site_description: Metadata for LightGraphs
+site_author:      Seth Bromberger
+
+theme: readthedocs
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - assets/mathjaxhelper.js
+
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math
+
+docs_dir: 'build'
+
+pages:
+  - Home: index.md
+  - MetaGraphs: metagraphs.md
+  - License: license.md

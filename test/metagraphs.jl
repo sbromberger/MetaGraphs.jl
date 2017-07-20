@@ -257,6 +257,8 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
     set_prop!(mg, 3, :color, "blue")
     set_prop!(mg, 1, 2, :weight, 0.2)
     set_prop!(mg, 2, 3, :weight, 0.6)
+    set_prop!(mg, :name, "test metagraph")
+    
     @test length(collect(filter_edges(mg, :weight))) == 2
     @test length(collect(filter_edges(mg, :weight, 0.2))) == 1
     @test length(collect(filter_vertices(mg, :color))) == 3
