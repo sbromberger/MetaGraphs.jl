@@ -13,7 +13,8 @@ import LightGraphs:
     ne, vertices, edges, is_directed,
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
     has_vertex, has_edge, in_neighbors, out_neighbors,
-    weights, indegree, outdegree, degree
+    weights, indegree, outdegree, degree,
+    induced_subgraph
 
 import LightGraphs.SimpleGraphs:
     AbstractSimpleGraph, SimpleGraph, SimpleDiGraph,
@@ -31,7 +32,12 @@ export
     rem_prop!,
     has_prop,
     clear_props!,
-    set_weightfield!
+    weightfield!,
+    defaultweight!,
+    weightfield,
+    defaultweight,
+    filter_edges,
+    filter_vertices
 
 const PropDict = Dict{Symbol,Any}
 abstract type AbstractMetaGraph <: AbstractGraph end
@@ -215,11 +221,121 @@ clear_props!(g::AbstractMetaGraph) = g.gprops = PropDict()
 clear_props!(g::AbstractMetaGraph, u::Integer, v::Integer) = clear_props!(g, Edge(u, v))
 
 """
-    set_weightfield!(g, prop)
+    weightfield!(g, prop)
 
-Sets the field that contains weight information to `prop`.
+Set the field that contains weight information to `prop`.
 """
-set_weightfield!(g::AbstractMetaGraph, prop::Symbol) = (g.weightfield = prop)
+weightfield!(g::AbstractMetaGraph, prop::Symbol) = (g.weightfield = prop)
+
+"""
+    weightfield(g)
+
+Return the field that contains weight information for metagraph `g`.
+"""
+weightfield(g::AbstractMetaGraph) = g.weightfield
+
+"""
+    defaultweight!(g, weight)
+
+Set the default weight for metagraph `g`
+"""
+defaultweight!(g::AbstractMetaGraph, weight::Real) =
+    g.defaultweight = weight
+"""
+    defaultweight(g)
+
+Return the default weight for metagraph `g`.
+"""
+defaultweight(g::AbstractMetaGraph) = g.defaultweight
+
+"""
+    filter_edges(g, prop[, val])
+    filter_edges(g, fn)
+
+Return an iterator to all edges that have property `prop` defined (optionally
+as `val`, or where function `fn` returns `true` only for edges that should be
+included in the iterator).
+
+`fn` should be of the form
+```
+fn(g::AbstractMetaGraph, e::AbstractEdge)::Boolean
+```
+where `e` is replaced with the edge being evaluated.
+"""
+filter_edges(g::AbstractMetaGraph, fn::Function) =
+    Iterators.filter(e -> fn(g, e), edges(g))
+
+filter_edges(g::AbstractMetaGraph, prop::Symbol) =
+    filter_edges(g, (g, e) -> has_prop(g, e, prop))
+
+filter_edges(g::AbstractMetaGraph, prop::Symbol, val) =
+    filter_edges(g, (g, e) -> has_prop(g, e, prop) && get_prop(g, e, prop) == val)
+
+"""
+    filter_vertices(g, prop[, val])
+    filter_vertices(g, fn)
+
+Return an iterator to all vertices that have property `prop` defined (optionally
+as `val`, or where function `fn` returns `true` only for vertices that should be
+included in the iterator).
+
+`fn` should be of the form
+```
+fn(g::AbstractMetaGraph, v::Integer)::Boolean
+```
+where `v` is replaced with the vertex being evaluated.
+"""
+filter_vertices(g::AbstractMetaGraph, fn::Function) =
+    Iterators.filter(x -> fn(g, x), vertices(g))
+
+filter_vertices(g::AbstractMetaGraph, prop::Symbol) =
+    filter_vertices(g, (g, x) -> has_prop(g, x, prop))
+
+filter_vertices(g::AbstractMetaGraph, prop::Symbol, val) =
+    filter_vertices(g, (g, x) -> has_prop(g, x, prop) && get_prop(g, x, prop) == val)
+
+function _copy_props!(oldg::T, newg::T, vmap) where T <: AbstractMetaGraph
+    for (newv, oldv) in enumerate(vmap)
+        p = props(oldg, oldv)
+        if !isempty(p)
+            set_props!(newg, newv, p)
+        end
+    end
+    for newe in edges(newg)
+        u, v = Tuple(newe)       
+        olde = Edge(vmap[u], vmap[v])
+        if !is_directed(oldg) && !is_ordered(olde)
+            olde = reverse(olde)
+        end
+        p = props(oldg, olde)
+        if !isempty(p)
+            set_props!(newg, newe, p)
+        end
+    end
+    if !isempty(oldg.gprops)
+        set_props!(newg, oldg.gprops)
+    end
+    defaultweight!(newg, defaultweight(oldg))
+    weightfield!(newg, weightfield(oldg))
+    return nothing
+end
+
+function induced_subgraph(g::T, v::AbstractVector{U}) where T <: AbstractMetaGraph where U <: Integer
+    inducedgraph, vmap = induced_subgraph(g.graph, v)
+    newg = T(inducedgraph)
+    _copy_props!(g, newg, vmap)
+    return newg, vmap
+end
+
+function induced_subgraph(g::T, v::AbstractVector{U}) where T <: AbstractMetaGraph where U <: AbstractEdge
+    inducedgraph, vmap = induced_subgraph(g.graph, v)
+    newg = T(inducedgraph)
+    _copy_props!(g, newg, vmap)
+    return newg, vmap
+end
+
+induced_subgraph(g::T, filt::Iterators.Filter) where T <: AbstractMetaGraph =
+    induced_subgraph(g, collect(filt))
 
 # TODO - would be nice to be able to apply a function to properties. Not sure
 # how this might work, but if the property is a vector, a generic way to append to
