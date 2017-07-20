@@ -269,7 +269,47 @@ clear_props!(g, s, d)
 </code></pre>
 
 <p>Remove all defined properties from graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L202-L210' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L208-L216' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.defaultweight!-Tuple{MetaGraphs.AbstractMetaGraph,Real}' href='#MetaGraphs.defaultweight!-Tuple{MetaGraphs.AbstractMetaGraph,Real}'>#</a>
+<strong><code>MetaGraphs.defaultweight!</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>defaultweight!(g, weight)
+</code></pre>
+
+<p>Set the default weight for metagraph <code>g</code></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L237-L241' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.defaultweight-Tuple{MetaGraphs.AbstractMetaGraph}' href='#MetaGraphs.defaultweight-Tuple{MetaGraphs.AbstractMetaGraph}'>#</a>
+<strong><code>MetaGraphs.defaultweight</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>defaultweight(g)
+</code></pre>
+
+<p>Return the default weight for metagraph <code>g</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L244-L248' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.filter_edges-Tuple{MetaGraphs.AbstractMetaGraph,Function}' href='#MetaGraphs.filter_edges-Tuple{MetaGraphs.AbstractMetaGraph,Function}'>#</a>
+<strong><code>MetaGraphs.filter_edges</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>filter_edges(g, prop[, val])
+filter_edges(g, fn)
+</code></pre>
+
+<p>Return an iterator to all edges that have property <code>prop</code> defined (optionally as <code>val</code>, or where function <code>fn</code> returns <code>true</code> only for edges that should be included in the iterator).</p>
+<p><code>fn</code> should be of the form</p>
+<pre><code>fn(g::AbstractMetaGraph, e::AbstractEdge)::Boolean
+</code></pre>
+
+<p>where <code>e</code> is replaced with the edge being evaluated.</p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L251-L264' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.filter_vertices-Tuple{MetaGraphs.AbstractMetaGraph,Function}' href='#MetaGraphs.filter_vertices-Tuple{MetaGraphs.AbstractMetaGraph,Function}'>#</a>
+<strong><code>MetaGraphs.filter_vertices</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>filter_vertices(g, prop[, val])
+filter_vertices(g, fn)
+</code></pre>
+
+<p>Return an iterator to all vertices that have property <code>prop</code> defined (optionally as <code>val</code>, or where function <code>fn</code> returns <code>true</code> only for vertices that should be included in the iterator).</p>
+<p><code>fn</code> should be of the form</p>
+<pre><code>fn(g::AbstractMetaGraph, v::Integer)::Boolean
+</code></pre>
+
+<p>where <code>v</code> is replaced with the vertex being evaluated.</p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L274-L287' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.get_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}' href='#MetaGraphs.get_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}'>#</a>
 <strong><code>MetaGraphs.get_prop</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>get_prop(g, prop)
@@ -279,7 +319,7 @@ get_prop(g, s, d, prop)
 </code></pre>
 
 <p>Return the property <code>prop</code> defined for graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>). If property is not defined, return an error.</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L119-L128' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L125-L134' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.has_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}' href='#MetaGraphs.has_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}'>#</a>
 <strong><code>MetaGraphs.has_prop</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>has_prop(g, prop)
@@ -289,7 +329,7 @@ has_prop(g, s, d, prop)
 </code></pre>
 
 <p>Return true if the property <code>prop</code> is defined for graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L135-L143' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L141-L149' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.props-Tuple{MetaGraphs.AbstractMetaGraph}' href='#MetaGraphs.props-Tuple{MetaGraphs.AbstractMetaGraph}'>#</a>
 <strong><code>MetaGraphs.props</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>props(g)
@@ -299,7 +339,7 @@ props(g, s, d)
 </code></pre>
 
 <p>Return a dictionary of all metadata from graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L105-L113' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L111-L119' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.rem_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}' href='#MetaGraphs.rem_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}'>#</a>
 <strong><code>MetaGraphs.rem_prop!</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>rem_prop!(g, prop)
@@ -309,7 +349,7 @@ rem_prop!(g, s, d, prop)
 </code></pre>
 
 <p>Remove property <code>prop</code> from graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>). If property does not exist, will not do anything.</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L185-L194' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L191-L200' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.set_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol,Any}' href='#MetaGraphs.set_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol,Any}'>#</a>
 <strong><code>MetaGraphs.set_prop!</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>set_prop!(g, prop, val)
@@ -319,7 +359,7 @@ set_prop!(g, s, d, prop, val)
 </code></pre>
 
 <p>Set (replace) property <code>prop</code> with value <code>val</code> in graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L170-L178' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L176-L184' class='documenter-source'>source</a><br></p>
 <p><a id='MetaGraphs.set_props!-Tuple{MetaGraphs.AbstractMetaGraph,Dict}' href='#MetaGraphs.set_props!-Tuple{MetaGraphs.AbstractMetaGraph,Dict}'>#</a>
 <strong><code>MetaGraphs.set_props!</code></strong> &mdash; <em>Method</em>.</p>
 <pre><code>set_props!(g, dict)
@@ -329,14 +369,21 @@ set_props!(g, s, d, dict)
 </code></pre>
 
 <p>Bulk set (merge) properties contained in <code>dict</code> with graph <code>g</code>, vertex <code>v</code>, or edge <code>e</code> (optionally referenced by source vertex <code>s</code> and destination vertex <code>d</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L150-L158' class='documenter-source'>source</a><br></p>
-<p><a id='MetaGraphs.set_weightfield!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}' href='#MetaGraphs.set_weightfield!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}'>#</a>
-<strong><code>MetaGraphs.set_weightfield!</code></strong> &mdash; <em>Method</em>.</p>
-<pre><code>set_weightfield!(g, prop)
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L156-L164' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.weightfield!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}' href='#MetaGraphs.weightfield!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}'>#</a>
+<strong><code>MetaGraphs.weightfield!</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>weightfield!(g, prop)
 </code></pre>
 
-<p>Sets the field that contains weight information to <code>prop</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/2cb1d8db6afbdba6fcc19c410d87d33b11c6dcf4/docs/../src/MetaGraphs.jl#L217-L221' class='documenter-source'>source</a><br></p>
+<p>Set the field that contains weight information to <code>prop</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L223-L227' class='documenter-source'>source</a><br></p>
+<p><a id='MetaGraphs.weightfield-Tuple{MetaGraphs.AbstractMetaGraph}' href='#MetaGraphs.weightfield-Tuple{MetaGraphs.AbstractMetaGraph}'>#</a>
+<strong><code>MetaGraphs.weightfield</code></strong> &mdash; <em>Method</em>.</p>
+<pre><code>weightfield(g)
+</code></pre>
+
+<p>Return the field that contains weight information for metagraph <code>g</code>.</p>
+<p><a target='_blank' href='https://github.com/JuliaGraphs/MetaGraphs.jl/tree/d8730adf668e6c6fd60f50e1db4a4278e5c5ea6e/docs/../src/MetaGraphs.jl#L230-L234' class='documenter-source'>source</a><br></p>
                 
                   
                 
