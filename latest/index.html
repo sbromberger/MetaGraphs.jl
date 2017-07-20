@@ -196,9 +196,50 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Getting Started
+      </label>
+    
     <a href="." title="Getting Started" class="md-nav__link md-nav__link--active">
       Getting Started
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" title="Documentation" class="md-nav__link">
+    Documentation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-usage" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -244,6 +285,34 @@
     
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" title="Documentation" class="md-nav__link">
+    Documentation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-usage" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -259,9 +328,19 @@
                 
                 <p><a id='MetaGraphs-1'></a></p>
 <h1 id="metagraphs">MetaGraphs</h1>
-<p><a href="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl"><img alt="Build Status" src="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl.svg?branch=master" /></a> <a href="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl?branch=master"><img alt="codecov.io" src="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl/coverage.svg?branch=master" /></a></p>
+<p><a href="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl"><img alt="Build Status" src="https://travis-ci.org/JuliaGraphs/MetaGraphs.jl.svg?branch=master" /></a> <a href="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl?branch=master"><img alt="codecov.io" src="http://codecov.io/github/JuliaGraphs/MetaGraphs.jl/coverage.svg?branch=master" /></a> <a href="https://juliagraphs.github.io/MetaGraphs.jl/latest"><img alt="" src="https://img.shields.io/badge/docs-latest-blue.svg" /></a></p>
 <p><a href="https://github.com/JuliaGraphs/LightGraphs.jl">LightGraphs.jl</a> graphs with arbitrary metadata.</p>
-<p>Example usage:</p>
+<p><a id='Documentation-1'></a></p>
+<h2 id="documentation">Documentation</h2>
+<p>Full documentation is available at <a href="https://juliagraphs.github.io/MetaGraphs.jl/latest">GitHub Pages</a>. Documentation for methods is also available via the Julia REPL help system.</p>
+<p><a id='Installation-1'></a></p>
+<h2 id="installation">Installation</h2>
+<p>Installation is straightforward:</p>
+<pre><code class="julia-repl">julia&gt; Pkg.add(&quot;MetaGraphs&quot;)
+</code></pre>
+
+<p><a id='Example-Usage-1'></a></p>
+<h2 id="example-usage">Example Usage</h2>
 <pre><code class="julia-repl">julia&gt; using LightGraphs, MetaGraphs
 
 # create a standard simplegraph
