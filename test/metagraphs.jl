@@ -162,7 +162,7 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
 
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
     @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
-    @test set_prop!(mg, :name, "test graph") == "test graph"
+    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
     
     
     @test length(props(mg)) == 1
@@ -199,7 +199,7 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
 
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
     @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
-    @test set_prop!(mg, :name, "test graph") == "test graph"
+    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
     
     
     @test length(props(mg)) == 1
