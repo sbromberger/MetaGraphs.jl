@@ -8,8 +8,7 @@ import Base:
     zero, getindex
 
 import LightGraphs:
-    AbstractGraph, AbstractEdge, AbstractEdgeIter,
-    src, dst, edgetype, nv,
+    AbstractGraph, src, dst, edgetype, nv,
     ne, vertices, edges, is_directed,
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
     has_vertex, has_edge, in_neighbors, out_neighbors,
@@ -84,21 +83,21 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     rem_vertex!(g.graph, v)
 end
 
-struct MetaWeights{T<:Real} <: AbstractMatrix{T}
-    n::Int
+struct MetaWeights{T<:Integer,U<:Real} <: AbstractMatrix{U}
+    n::T
     weightfield::Symbol
-    defaultweight::T
-    eprops::Dict{AbstractEdge,PropDict}
+    defaultweight::U
+    eprops::Dict{SimpleEdge{T},PropDict}
 end
 show(io::IO, x::MetaWeights) = print(io, "metaweights")
 show(io::IO, z::MIME"text/plain", x::MetaWeights) = show(io, x)
 
-MetaWeights(g::AbstractMetaGraph) = MetaWeights{Float64}(nv(g), g.weightfield, g.defaultweight, g.eprops)
+MetaWeights(g::AbstractMetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops)
 
-function getindex(w::MetaWeights, u::Integer, v::Integer)
+function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Integer where U <: Real
     e = Edge(u, v)
     !haskey(w.eprops, e) && return w.defaultweight
-    return get(w.eprops[e], w.weightfield, w.defaultweight)
+    return U(get(w.eprops[e], w.weightfield, w.defaultweight))
 end
 
 size(d::MetaWeights) = (d.n, d.n)
@@ -106,7 +105,7 @@ size(d::MetaWeights) = (d.n, d.n)
 weights(g::AbstractMetaGraph) = MetaWeights(g)
 
 _hasdict(g::AbstractMetaGraph, v::Integer) = haskey(g.vprops, v)
-_hasdict(g::AbstractMetaGraph, e::AbstractEdge) = haskey(g.eprops, e)
+_hasdict(g::AbstractMetaGraph, e::SimpleEdge) = haskey(g.eprops, e)
 
 """
     props(g)
@@ -134,7 +133,7 @@ If property is not defined, return an error.
 """
 get_prop(g::AbstractMetaGraph, prop::Symbol) = props(g)[prop]
 get_prop(g::AbstractMetaGraph, v::Integer, prop::Symbol) = props(g, v)[prop]
-get_prop(g::AbstractMetaGraph, e::AbstractEdge, prop::Symbol) = props(g, e)[prop]
+get_prop(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = props(g, e)[prop]
 
 get_prop(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = get_prop(g, Edge(u, v), prop)
 
@@ -149,7 +148,7 @@ edge `e` (optionally referenced by source vertex `s` and destination vertex `d`)
 """
 has_prop(g::AbstractMetaGraph, prop::Symbol) = haskey(g.gprops, prop)
 has_prop(g::AbstractMetaGraph, v::Integer, prop::Symbol) = haskey(props(g, v), prop)
-has_prop(g::AbstractMetaGraph, e::AbstractEdge, prop::Symbol) = haskey(props(g, e), prop)
+has_prop(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = haskey(props(g, e), prop)
 
 has_prop(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = has_prop(g, Edge(u, v), prop)
 
@@ -169,7 +168,7 @@ set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
     else
         merge!(g.vprops[v], d)
     end
-# set_props!(g::AbstractMetaGraph, e::AbstractEdge, d::Dict) is dependent on directedness.
+# set_props!(g::AbstractMetaGraph, e::SimpleEdge, d::Dict) is dependent on directedness.
 
 set_props!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict) = set_props!(g, Edge(u, v), d)
 
@@ -184,7 +183,7 @@ edge `e` (optionally referenced by source vertex `s` and destination vertex `d`)
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = set_props!(g, v, Dict(prop => val))
-set_prop!(g::AbstractMetaGraph, e::AbstractEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
+set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
 set_prop!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol, val) = set_prop!(g, Edge(u, v), prop, val)
 
@@ -201,7 +200,7 @@ If property does not exist, will not do anything.
 
 rem_prop!(g::AbstractMetaGraph, prop::Symbol) = delete!(g.gprops, prop)
 rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v], prop)
-rem_prop!(g::AbstractMetaGraph, e::AbstractEdge, prop::Symbol) = delete!(g.eprops[e], prop)
+rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
 
 rem_prop!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = rem_prop!(g, Edge(u, v), prop)
 
@@ -215,7 +214,7 @@ Remove all defined properties from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
 """
 clear_props!(g::AbstractMetaGraph, v::Integer) = _hasdict(g, v) && (g.vprops[v] = PropDict())
-clear_props!(g::AbstractMetaGraph, e::AbstractEdge) = _hasdict(g, e) && (g.eprops[e] = PropDict())
+clear_props!(g::AbstractMetaGraph, e::SimpleEdge) = _hasdict(g, e) && (g.eprops[e] = PropDict())
 clear_props!(g::AbstractMetaGraph) = g.gprops = PropDict()
 
 clear_props!(g::AbstractMetaGraph, u::Integer, v::Integer) = clear_props!(g, Edge(u, v))
@@ -258,7 +257,7 @@ included in the iterator.
 
 `fn` should be of the form
 ```
-fn(g::AbstractMetaGraph, e::AbstractEdge)::Boolean
+fn(g::AbstractMetaGraph, e::SimpleEdge)::Boolean
 ```
 where `e` is replaced with the edge being evaluated.
 """
@@ -327,7 +326,7 @@ function induced_subgraph(g::T, v::AbstractVector{U}) where T <: AbstractMetaGra
     return newg, vmap
 end
 
-function induced_subgraph(g::T, v::AbstractVector{U}) where T <: AbstractMetaGraph where U <: AbstractEdge
+function induced_subgraph(g::T, v::AbstractVector{U}) where T <: AbstractMetaGraph where U <: SimpleEdge
     inducedgraph, vmap = induced_subgraph(g.graph, v)
     newg = T(inducedgraph)
     _copy_props!(g, newg, vmap)
