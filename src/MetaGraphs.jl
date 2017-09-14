@@ -70,6 +70,13 @@ out_neighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 
 issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
+"""
+    add_edge!(g,u,v,symbol,value)
+    add_edge!(g,u,v,d)
+
+    add an edge `(u,v)` to MetaGraph `g` with property `symbol` having value `value`, or properties given by a Dicitionary `d`
+"""
+
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol, val)
     add_edge!(g,u,v)
@@ -84,6 +91,13 @@ end
     rem_edge!(g.graph, x...)
 end
 
+"""
+    add_vertex!(g)
+    add_vertex!(g,symbol,value)
+    add_vertex!(g,d)
+
+    add a vertex to MetaGraph `g` with property `symbol` having value `value`, or properties given by a Dicitionary `d`
+"""
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
 function add_vertex!(g::AbstractMetaGraph,d::Dict)
     add_vertex!(g)
