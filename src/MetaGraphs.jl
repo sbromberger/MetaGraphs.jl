@@ -2,7 +2,7 @@ module MetaGraphs
 using LightGraphs
 
 import Base:
-    eltype, show, ==, Pair, 
+    eltype, show, ==, Pair,
     Tuple, copy, length, size,
     start, next, done, issubset,
     zero, getindex
@@ -71,13 +71,28 @@ out_neighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
-
+function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol, val)
+    add_edge!(g,u,v)
+    set_prop!(g,u,v,prop,val)
+end
+function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
+    add_edge!(g,u,v)
+    set_props!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
+end
 @inline function rem_edge!(g::AbstractMetaGraph, x...)
     clear_props!(g, x...)
     rem_edge!(g.graph, x...)
 end
 
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
+function add_vertex!(g::AbstractMetaGraph,d::Dict)
+    add_vertex!(g)
+    set_props!(g, nv(g), d)
+end
+function add_vertex!(g::AbstractMetaGraph, prop::Symbol, val)
+    add_vertex!(g)
+    set_prop!(g::AbstractMetaGraph, nv(g), prop, val)
+end
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     clear_props!(g, v)
     rem_vertex!(g.graph, v)
@@ -162,7 +177,7 @@ Bulk set (merge) properties contained in `dict` with graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
 """
 set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
-set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) = 
+set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
     if !_hasdict(g, v)
         g.vprops[v] = d
     else
@@ -301,7 +316,7 @@ function _copy_props!(oldg::T, newg::T, vmap) where T <: AbstractMetaGraph
         end
     end
     for newe in edges(newg)
-        u, v = Tuple(newe)       
+        u, v = Tuple(newe)
         olde = Edge(vmap[u], vmap[v])
         if !is_directed(oldg) && !is_ordered(olde)
             olde = reverse(olde)
