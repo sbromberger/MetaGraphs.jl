@@ -71,20 +71,21 @@ out_neighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
 """
-    add_edge!(g,u,v,symbol,value)
-    add_edge!(g,u,v,d)
+    add_edge!(g, u, v, s, val)
+    add_edge!(g, u, v, d)
 
-    add an edge `(u,v)` to MetaGraph `g` with property `symbol` having value `value`, or properties given by a Dicitionary `d`
+    Add an edge `(u, v)` to MetaGraph `g` with optional property `s` having value `val`, 
+    or properties given by an optional dictionary `d` mapping symbols to values.
 """
 
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
-function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol, val)
-    add_edge!(g,u,v)
-    set_prop!(g,u,v,prop,val)
+function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, s::Symbol, val)
+    add_edge!(g, u, v)
+    set_prop!(g, u, v, s, val)
 end
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
-    add_edge!(g,u,v)
-    set_props!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
+    add_edge!(g, u, v)
+    set_props!(g, u, v, d)
 end
 @inline function rem_edge!(g::AbstractMetaGraph, x...)
     clear_props!(g, x...)
@@ -93,19 +94,20 @@ end
 
 """
     add_vertex!(g)
-    add_vertex!(g,symbol,value)
-    add_vertex!(g,d)
+    add_vertex!(g, s, v)
+    add_vertex!(g, d)
 
-    add a vertex to MetaGraph `g` with property `symbol` having value `value`, or properties given by a Dicitionary `d`
+    Add a vertex to MetaGraph `g` with optional property `s` having value `v`, 
+    or properties given by an optional Dicitionary `d` mapping symbols to values.
 """
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
 function add_vertex!(g::AbstractMetaGraph,d::Dict)
-    add_vertex!(g)
-    set_props!(g, nv(g), d)
+    add_vertex!(g) && set_props!(g, nv(g), d) && return true
+    return false
 end
-function add_vertex!(g::AbstractMetaGraph, prop::Symbol, val)
-    add_vertex!(g)
-    set_prop!(g::AbstractMetaGraph, nv(g), prop, val)
+function add_vertex!(g::AbstractMetaGraph, s::Symbol, v)
+    add_vertex!(g) && set_prop!(g::AbstractMetaGraph, nv(g), s, v) && return true
+    return false
 end
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     clear_props!(g, v)
