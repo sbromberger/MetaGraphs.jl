@@ -1,5 +1,5 @@
 importall MetaGraphs
-import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
+
 
 @testset "MetaGraphs" begin
     
