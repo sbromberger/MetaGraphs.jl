@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.filter_edges",
     "category": "Method",
-    "text": "filter_edges(g, prop[, val])\nfilter_edges(g, fn)\n\nReturn an iterator to all edges that have property prop defined (optionally as val), or where function fn returns true only for edges that should be included in the iterator.\n\nfn should be of the form\n\nfn(g::AbstractMetaGraph, e::SimpleEdge)::Boolean\n\nwhere e is replaced with the edge being evaluated.\n\n\n\n"
+    "text": "filter_edges(g, prop[, val])\nfilter_edges(g, fn)\n\nReturn an iterator to all edges that have property prop defined (optionally as val), or where function fn returns true only for edges that should be included in the iterator.\n\nfn should be of the form\n\nfn(g::AbstractMetaGraph{T}, e::SimpleEdge{T})::Boolean\n\nwhere e is replaced with the edge being evaluated.\n\n\n\n"
 },
 
 {
