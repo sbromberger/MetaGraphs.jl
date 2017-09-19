@@ -1,5 +1,6 @@
 module MetaGraphs
 using LightGraphs
+using JLD2
 
 import Base:
     eltype, show, ==, Pair, 
@@ -13,7 +14,8 @@ import LightGraphs:
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
     has_vertex, has_edge, in_neighbors, out_neighbors,
     weights, indegree, outdegree, degree,
-    induced_subgraph
+    induced_subgraph,
+    loadgraph, savegraph, AbstractGraphFormat
 
 import LightGraphs.SimpleGraphs:
     AbstractSimpleGraph, SimpleGraph, SimpleDiGraph,
@@ -36,10 +38,11 @@ export
     weightfield,
     defaultweight,
     filter_edges,
-    filter_vertices
+    filter_vertices,
+    MGFormat
 
 const PropDict = Dict{Symbol,Any}
-abstract type AbstractMetaGraph <: AbstractGraph end
+abstract type AbstractMetaGraph{T} <: AbstractGraph{T} end
 
 function show(io::IO, g::AbstractMetaGraph)
     dir = is_directed(g) ? "directed" : "undirected"
@@ -170,7 +173,7 @@ set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
     end
 # set_props!(g::AbstractMetaGraph, e::SimpleEdge, d::Dict) is dependent on directedness.
 
-set_props!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict) = set_props!(g, Edge(u, v), d)
+set_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, d::Dict) where T = set_props!(g, Edge(T(u), T(v)), d)
 
 """
     set_prop!(g, prop, val)
@@ -185,7 +188,7 @@ set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => 
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = set_props!(g, v, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
-set_prop!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol, val) = set_prop!(g, Edge(u, v), prop, val)
+set_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol, val) where T = set_prop!(g, Edge(T(u), T(v)), prop, val)
 
 """
     rem_prop!(g, prop)
@@ -202,7 +205,7 @@ rem_prop!(g::AbstractMetaGraph, prop::Symbol) = delete!(g.gprops, prop)
 rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v], prop)
 rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
 
-rem_prop!(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = rem_prop!(g, Edge(u, v), prop)
+rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T = rem_prop!(g, Edge(T(u), T(v)), prop)
 
 """
     clear_props!(g)
@@ -217,7 +220,7 @@ clear_props!(g::AbstractMetaGraph, v::Integer) = _hasdict(g, v) && (g.vprops[v] 
 clear_props!(g::AbstractMetaGraph, e::SimpleEdge) = _hasdict(g, e) && (g.eprops[e] = PropDict())
 clear_props!(g::AbstractMetaGraph) = g.gprops = PropDict()
 
-clear_props!(g::AbstractMetaGraph, u::Integer, v::Integer) = clear_props!(g, Edge(u, v))
+clear_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer) where T = clear_props!(g, Edge(T(u), T(v)))
 
 """
     weightfield!(g, prop)
@@ -257,7 +260,7 @@ included in the iterator.
 
 `fn` should be of the form
 ```
-fn(g::AbstractMetaGraph, e::SimpleEdge)::Boolean
+fn(g::AbstractMetaGraph{T}, e::SimpleEdge{T})::Boolean
 ```
 where `e` is replaced with the edge being evaluated.
 """
@@ -346,4 +349,5 @@ copy(g::T) where T <: AbstractMetaGraph = deepcopy(g)
 
 include("metagraph.jl")
 include("metadigraph.jl")
+include("persistence.jl")
 end # module
