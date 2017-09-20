@@ -74,18 +74,28 @@ issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
     add_edge!(g, u, v, s, val)
     add_edge!(g, u, v, d)
 
-    Add an edge `(u, v)` to MetaGraph `g` with optional property `s` having value `val`, 
+    Add an edge `(u, v)` to MetaGraph `g` with optional property `s` having value `val`,
     or properties given by an optional dictionary `d` mapping symbols to values.
+
+    return true if the edge has been added, false otherwise
 """
 
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, s::Symbol, val)
-    add_edge!(g, u, v)
-    set_prop!(g, u, v, s, val)
+    if add_edge!(g, u, v)
+        set_prop!(g, u, v, s, val)
+        return true
+    else
+        return false
+    end
 end
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
-    add_edge!(g, u, v)
-    set_props!(g, u, v, d)
+    if add_edge!(g, u, v)
+        set_props!(g, u, v, d)
+        return true
+    else
+        return false
+    end
 end
 @inline function rem_edge!(g::AbstractMetaGraph, x...)
     clear_props!(g, x...)
@@ -97,17 +107,27 @@ end
     add_vertex!(g, s, v)
     add_vertex!(g, d)
 
-    Add a vertex to MetaGraph `g` with optional property `s` having value `v`, 
+    Add a vertex to MetaGraph `g` with optional property `s` having value `v`,
     or properties given by an optional Dicitionary `d` mapping symbols to values.
+
+    return true if the vertex has been added, false otherwise.
 """
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
 function add_vertex!(g::AbstractMetaGraph,d::Dict)
-    add_vertex!(g) && set_props!(g, nv(g), d) && return true
-    return false
+    if add_vertex!(g)
+        set_props!(g, nv(g), d)
+        return true
+    else
+        return false
+    end
 end
 function add_vertex!(g::AbstractMetaGraph, s::Symbol, v)
-    add_vertex!(g) && set_prop!(g::AbstractMetaGraph, nv(g), s, v) && return true
-    return false
+    if add_vertex!(g)
+        set_prop!(g, nv(g), s, v)
+        return true
+    else
+        return false
+    end
 end
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     clear_props!(g, v)

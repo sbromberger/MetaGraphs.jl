@@ -16,10 +16,10 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
     dgx = PathDiGraph(4)
 
     mg = MetaGraph()
-    @test add_vertex!(mg,:color,"red") == Dict(:color => "red")
-    @test add_vertex!(mg,Dict(:color=>"red",:prop2=>"prop2"))  == Dict(:color=>"red",:prop2=>"prop2")
-    @test add_edge!(mg,1,2,:color,"blue") == Dict(:color => "blue")
-    @test add_vertex!(mg) && add_edge!(mg,1,3,Dict(:color => "red",:prop2 => "prop2")) == Dict(:color=>"red",:prop2=>"prop2")
+    @test add_vertex!(mg,:color,"red") && get_prop(mg,nv(mg),:color) == "red"
+    @test add_vertex!(mg,Dict(:color=>"red",:prop2=>"prop2")) && props(mg,nv(mg)) == Dict(:color=>"red",:prop2=>"prop2")
+    @test add_edge!(mg,1,2,:color,"blue") && get_prop(mg,1,2,:color) ==  "blue"
+    @test add_vertex!(mg) && add_edge!(mg,1,3,Dict(:color => "red",:prop2 => "prop2")) && props(mg,1,3) == Dict(:color=>"red",:prop2=>"prop2")
 
     for g in testgraphs(gx)
         mg = MetaGraph(g)
