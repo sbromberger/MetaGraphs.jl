@@ -39,7 +39,8 @@ export
     defaultweight,
     filter_edges,
     filter_vertices,
-    MGFormat
+    MGFormat,
+    update_index
 
 const PropDict = Dict{Symbol,Any}
 const MetaDict = Dict{Any,Integer}
