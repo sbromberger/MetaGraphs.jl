@@ -42,6 +42,8 @@ export
     MGFormat
 
 const PropDict = Dict{Symbol,Any}
+const MetaDict = Dict{Any,Integer}
+
 abstract type AbstractMetaGraph{T} <: AbstractGraph{T} end
 
 function show(io::IO, g::AbstractMetaGraph)
@@ -148,6 +150,18 @@ function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Int
     e = Edge(u, v)
     !haskey(w.eprops, e) && return w.defaultweight
     return U(get(w.eprops[e], w.weightfield, w.defaultweight))
+end
+
+function getindex(g::AbstractMetaGraph, indx::Any)
+    typeof(indx) <: eltype(keys(g.metaindex)) || error("Index type does not match keys of metaindex")
+    haskey(g.metaindex, indx) || error("No node with key $indx")
+    return g.metaindex[indx]
+end
+
+function update_index(g::AbstractMetaGraph)
+    for i in 1:size(g)[1]
+        g.metaindex[get_prop(g, i, g.indexfield)] = i
+    end
 end
 
 size(d::MetaWeights) = (d.n, d.n)
