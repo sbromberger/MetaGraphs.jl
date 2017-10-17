@@ -43,7 +43,7 @@ export
     update_index
 
 const PropDict = Dict{Symbol,Any}
-const MetaDict = Dict{Any,Integer}
+const MetaDict = Dict{Symbol,Dict{Any,Integer}}
 
 abstract type AbstractMetaGraph{T} <: AbstractGraph{T} end
 
@@ -153,16 +153,16 @@ function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Int
     return U(get(w.eprops[e], w.weightfield, w.defaultweight))
 end
 
-function getindex(g::AbstractMetaGraph, indx::Any)
-    typeof(indx) <: eltype(keys(g.metaindex)) || error("Index type does not match keys of metaindex")
-    haskey(g.metaindex, indx) || error("No node with key $indx")
-    return g.metaindex[indx]
+function getindex(g::AbstractMetaGraph, prop::Symbol)
+    !haskey(g.metaindex, prop) && error("'$prop' not an indexing property")
+    return g.metaindex[prop]
 end
 
-function update_index(g::AbstractMetaGraph)
-    for i in 1:size(g)[1]
-        g.metaindex[get_prop(g, i, g.indexfield)] = i
-    end
+function getindex(g::AbstractMetaGraph, indx::Any, prop::Symbol)
+    haskey(g.metaindex, prop) || error("':$prop' is not an index")
+    typeof(indx) <: eltype(keys(g.metaindex[prop])) || error("Index type does not match keys of metaindex '$prop'")
+    !haskey(g.metaindex[prop], indx) && error("No node with prop $prop and key $indx")
+    return g.metaindex[prop][indx]
 end
 
 size(d::MetaWeights) = (d.n, d.n)
@@ -268,6 +268,21 @@ rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v],
 rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
 
 rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T = rem_prop!(g, Edge(T(u), T(v)), prop)
+
+function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
+    in(prop, g.indices) && return
+    index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
+    length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
+
+    g.metaindex[prop] = Dict{Any, Integer}()
+    push!(g.indices, prop)
+    for v in 1:size(g)[1]
+        if !haskey(g.vprops, v) || !haskey(g.vprops[v], prop)
+             set_prop!(g, v, prop, "$(string(prop))$v")
+        end
+        g.metaindex[prop][g.vprops[v][prop]] = v
+    end
+end
 
 """
     clear_props!(g)

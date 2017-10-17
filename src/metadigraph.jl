@@ -5,8 +5,8 @@ mutable struct MetaDiGraph{T<:Integer,U<:Real} <: AbstractMetaGraph{T}
     gprops::PropDict
     weightfield::Symbol
     defaultweight::U
-    indexfield::Symbol
     metaindex::MetaDict
+    indices::Set{Symbol}
 end
 
 function MetaDiGraph(x, weightfield::Symbol, defaultweight::U) where U <: Real
