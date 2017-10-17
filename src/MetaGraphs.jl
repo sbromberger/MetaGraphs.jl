@@ -104,6 +104,17 @@ end
     rem_edge!(g.graph, x...)
 end
 
+function default_index_value(v, prop, index_values)
+    if in("$(string(prop))$v", index_values)
+        srand(v+hash(prop))
+        val = randstring()
+        warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
+    else
+        val = "$(string(prop))$v"
+    end
+    return val
+end
+
 """
     add_vertex!(g)
     add_vertex!(g, s, v)
@@ -278,12 +289,12 @@ rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T
 
 """
     set_indexing_prop!(g, prop)
-    set_indexing_prop!(g, v, prop)
+    set_indexing_prop!(g, v, prop, val)
 
 Make property `prop` into an indexing property. If any values for this property
 are already set, each vertex must have unique values. Optionally, set the index
-for vertex `v`. Any vertices without values will be set to a default
-("$(prop)$v").
+`val` for vertex `v`. Any vertices without values will be set to a default
+("(prop)(v)").
 """
 function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
     in(prop, g.indices) && return
@@ -310,6 +321,10 @@ function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val:
     !in(prop, g.indices) && set_indexing_prop!(g, prop)
     (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
+
+    if !haskey(g.vprops, v)
+        g.vprops[v] = Dict(prop=>val)
+    end
 
     delete!(g.metaindex[prop], g.vprops[v][prop])
     g.metaindex[prop][val] = v
