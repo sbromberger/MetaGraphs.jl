@@ -40,7 +40,7 @@ export
     filter_edges,
     filter_vertices,
     MGFormat,
-    update_index
+    set_indexing_prop!
 
 const PropDict = Dict{Symbol,Any}
 const MetaDict = Dict{Symbol,Dict{Any,Integer}}
