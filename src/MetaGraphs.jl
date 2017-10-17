@@ -228,6 +228,8 @@ edge `e` (optionally referenced by source vertex `s` and destination vertex `d`)
 """
 set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
 set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
+    if length(intersect(keys(d), g.indices)) != 0
+        error("The following poperties are indexing_props and cannot be updated: $(intersect(keys(d), g.indices))")
     if !_hasdict(g, v)
         g.vprops[v] = d
     else
@@ -247,7 +249,12 @@ Set (replace) property `prop` with value `val` in graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
-set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = set_props!(g, v, Dict(prop => val))
+set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) =
+    if in(prop, g.indices)
+        error("':$prop' is an indexing property, use `set_indexing_prop!()` instead")
+    else
+        set_props!(g, v, Dict(prop => val))
+    end
 set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
 set_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol, val) where T = set_prop!(g, Edge(T(u), T(v)), prop, val)
@@ -269,21 +276,46 @@ rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[
 
 rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T = rem_prop!(g, Edge(T(u), T(v)), prop)
 
+"""
+    set_indexing_prop!(g, prop)
+    set_indexing_prop!(g, v, prop)
+
+Make property `prop` into an indexing property. If any values for this property
+are already set, each vertex must have unique values. Optionally, set the index
+for vertex `v`. Any vertices without values will be set to a default
+("$(prop)$v").
+"""
 function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
     in(prop, g.indices) && return
     index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
     length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
 
     g.metaindex[prop] = Dict{Any, Integer}()
-    push!(g.indices, prop)
     for v in 1:size(g)[1]
         if !haskey(g.vprops, v) || !haskey(g.vprops[v], prop)
-             set_prop!(g, v, prop, "$(string(prop))$v")
+            if in("$(string(prop))$v", index_values)
+                val = randstring()
+                warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
+            else
+                val = "$(string(prop))$v"
+            end
+            set_prop!(g, v, prop, val)
         end
         g.metaindex[prop][g.vprops[v][prop]] = v
     end
+    push!(g.indices, prop)
 end
 
+function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
+    !in(prop, g.indices) && set_indexing_prop!(g, prop)
+    (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return
+    haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
+
+    delete!(g.metaindex[prop], g.vprops[v][prop])
+    g.metaindex[prop][val] = v
+    g.vprops[v][prop] = val
+    return
+end
 """
     clear_props!(g)
     clear_props!(g, v)
