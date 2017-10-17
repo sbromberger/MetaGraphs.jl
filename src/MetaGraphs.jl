@@ -230,7 +230,7 @@ set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
 set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
     if length(intersect(keys(d), g.indices)) != 0
         error("The following poperties are indexing_props and cannot be updated: $(intersect(keys(d), g.indices))")
-    if !_hasdict(g, v)
+    elseif !_hasdict(g, v)
         g.vprops[v] = d
     else
         merge!(g.vprops[v], d)
