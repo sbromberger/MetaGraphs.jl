@@ -82,8 +82,12 @@ end
 
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
+    lastprops = props(g, nv(g))
     clear_props!(g, v)
-    rem_vertex!(g.graph, v)
+    delete!(g.vprops, nv(g))
+    retval = rem_vertex!(g.graph, v)
+    retval && set_props!(g, v, lastprops)
+    return retval
 end
 
 struct MetaWeights{T<:Integer,U<:Real} <: AbstractMatrix{U}
