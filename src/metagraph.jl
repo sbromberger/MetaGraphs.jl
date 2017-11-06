@@ -1,4 +1,4 @@
-mutable struct MetaGraph{T<:Integer,U<:Real} <: AbstractMetaGraph
+mutable struct MetaGraph{T<:Integer,U<:Real} <: AbstractMetaGraph{T}
     graph::SimpleGraph{T}
     vprops::Dict{T,PropDict}
     eprops::Dict{SimpleEdge{T},PropDict}

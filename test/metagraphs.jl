@@ -1,5 +1,5 @@
 importall MetaGraphs
-import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
+
 
 @testset "MetaGraphs" begin
 
@@ -74,7 +74,6 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
         @test @inferred(nv(MetaGraph{T, U}(6))) == 6
-
 
     end
 
@@ -295,4 +294,16 @@ import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
     @test get_prop(i, 2, :color) == "blue"
     @test get_prop(i, 1, 2, :weight) == 0.6
 
+
+    # test for #15
+    mga = MetaGraph(Graph(5))
+    for v in vertices(mga)
+        set_prop!(mga, v, :name, string(v))
+    end
+    @test get_prop(mga, 1, :name) == "1"
+    @test get_prop(mga, 5, :name) == "5"
+    @test rem_vertex!(mga, 1)
+    @test get_prop(mga, 1, :name) == "5"
+    @test isempty(props(mga, 5))
+            
 end
