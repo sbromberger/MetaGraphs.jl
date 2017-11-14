@@ -85,21 +85,17 @@ issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, s::Symbol, val)
-    if add_edge!(g, u, v)
-        set_prop!(g, u, v, s, val)
-        return true
-    else
-        return false
-    end
+    add_edge!(g, u, v) || return false
+    set_prop!(g, u, v, s, val)
+    return true
 end
+
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, d::Dict)
-    if add_edge!(g, u, v)
-        set_props!(g, u, v, d)
-        return true
-    else
-        return false
-    end
+    add_edge!(g, u, v) || return false
+    set_props!(g, u, v, d)
+    return true
 end
+
 @inline function rem_edge!(g::AbstractMetaGraph, x...)
     clear_props!(g, x...)
     rem_edge!(g.graph, x...)
@@ -117,21 +113,17 @@ end
 """
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
 function add_vertex!(g::AbstractMetaGraph,d::Dict)
-    if add_vertex!(g)
-        set_props!(g, nv(g), d)
-        return true
-    else
-        return false
-    end
+    add_vertex!(g) || return false
+    set_props!(g, nv(g), d)
+    return true
 end
+
 function add_vertex!(g::AbstractMetaGraph, s::Symbol, v)
-    if add_vertex!(g)
-        set_prop!(g, nv(g), s, v)
-        return true
-    else
-        return false
-    end
+    add_vertex!(g) || return false
+    set_prop!(g, nv(g), s, v)
+    return true
 end
+
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     lastprops = props(g, nv(g))
     clear_props!(g, v)
