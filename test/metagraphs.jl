@@ -2,7 +2,7 @@ importall MetaGraphs
 
 
 @testset "MetaGraphs" begin
-    
+
     # constructors
     @test @inferred(MetaGraph()) == MetaGraph(SimpleGraph())
     @test @inferred(MetaDiGraph()) == MetaDiGraph(SimpleDiGraph())
@@ -14,6 +14,12 @@ importall MetaGraphs
     adjmx2 = [0 1 0; 1 0 1; 1 1 0] # SimpleDiGraph
     gx = PathGraph(4)
     dgx = PathDiGraph(4)
+
+    mg = MetaGraph()
+    @test add_vertex!(mg,:color,"red") && get_prop(mg,nv(mg),:color) == "red"
+    @test add_vertex!(mg,Dict(:color=>"red",:prop2=>"prop2")) && props(mg,nv(mg)) == Dict(:color=>"red",:prop2=>"prop2")
+    @test add_edge!(mg,1,2,:color,"blue") && get_prop(mg,1,2,:color) ==  "blue"
+    @test add_vertex!(mg) && add_edge!(mg,1,3,Dict(:color => "red",:prop2 => "prop2")) && props(mg,1,3) == Dict(:color=>"red",:prop2=>"prop2")
 
     for g in testgraphs(gx)
         mg = MetaGraph(g)
@@ -27,7 +33,7 @@ importall MetaGraphs
         @test @inferred(MetaGraphs.badj(mg, 2)) == LightGraphs.SimpleGraphs.badj(g, 2)
 
         @test @inferred(edgetype(mg)) == edgetype(mg.graph)
-        
+
         @test @inferred(eltype(mg)) == eltype(g)
         @test @inferred(eltype(MetaGraph(g, 2.0))) == eltype(g)
         @test @inferred(eltype(MetaGraph(g, :cost))) == eltype(g)
@@ -68,6 +74,7 @@ importall MetaGraphs
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
         @test @inferred(nv(MetaGraph{T, U}(6))) == 6
+
     end
 
     for g in testdigraphs(dgx)
@@ -77,12 +84,12 @@ importall MetaGraphs
 
         @test eltype(@inferred(MetaDiGraph{UInt8, Float16}(mg))) == UInt8
         @test weighttype(@inferred(MetaDiGraph{UInt8, Float16}(mg))) == Float16
-    
+
         @test @inferred(MetaGraphs.fadj(mg, 2)) == LightGraphs.SimpleGraphs.fadj(g, 2)
         @test @inferred(MetaGraphs.badj(mg, 2)) == LightGraphs.SimpleGraphs.badj(g, 2)
 
         @test @inferred(edgetype(mg)) == edgetype(mg.graph)
-        
+
         @test @inferred(eltype(mg)) == eltype(g)
         @test @inferred(eltype(MetaDiGraph(g, 2.0))) == eltype(g)
         @test @inferred(eltype(MetaDiGraph(g, :cost))) == eltype(g)
@@ -90,7 +97,7 @@ importall MetaGraphs
         @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g))) == UInt8
         @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g, :cost))) == UInt8
         @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g, 4))) == UInt8
-        
+
         @test @inferred(ne(mg)) == 3
         @test @inferred(nv(mg)) == 4
         @test @inferred(is_directed(mg))
@@ -161,8 +168,8 @@ importall MetaGraphs
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
     @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
     @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
-    
-    
+
+
     @test length(props(mg)) == 1
     @test length(props(mg, 1)) == 2
     @test length(props(mg, 1, 2)) == 1
@@ -198,8 +205,8 @@ importall MetaGraphs
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
     @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
     @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
-    
-    
+
+
     @test length(props(mg)) == 1
     @test length(props(mg, 1)) == 2
     @test length(props(mg, 1, 2)) == 1
@@ -246,7 +253,7 @@ importall MetaGraphs
     @test rem_edge!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
     @test length(set_props!(mg, Dict(:name=>"testgraph", :type=>"undirected"))) == 2
-    
+
     mg = MetaGraph(CompleteGraph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
     set_prop!(mg, 1, :id, 40)
@@ -256,7 +263,7 @@ importall MetaGraphs
     set_prop!(mg, 1, 2, :weight, 0.2)
     set_prop!(mg, 2, 3, :weight, 0.6)
     set_prop!(mg, :name, "test metagraph")
-    
+
     @test length(collect(filter_edges(mg, :weight))) == 2
     @test length(collect(filter_edges(mg, :weight, 0.2))) == 1
     @test length(collect(filter_vertices(mg, :color))) == 3
@@ -286,6 +293,7 @@ importall MetaGraphs
     @test get_prop(i, 1, :color) == "red"
     @test get_prop(i, 2, :color) == "blue"
     @test get_prop(i, 1, 2, :weight) == 0.6
+
 
     # test for #15
     mga = MetaGraph(Graph(5))
