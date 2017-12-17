@@ -137,7 +137,7 @@ importall MetaGraphs
     for gbig in [SimpleGraph(0xff), SimpleDiGraph(0xff)]
         mg = MetaGraph(gbig)
         @test @inferred(!add_vertex!(mg))    # overflow
-        @test @inferred(!add_vertices!(mg, 10))
+        @test @inferred(!add_vertices!(mg, 10)) == 10
     end
 
     gx = SimpleGraph()
@@ -146,7 +146,7 @@ importall MetaGraphs
         T = eltype(mg)
         U = weighttype(mg)
         @test sprint(show, mg) == "empty undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
-        @test @inferred(add_vertices!(g, 5))
+        @test @inferred(add_vertices!(g, 5)) == 5
         @test sprint(show, mg) == "{5, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
     gx = SimpleDiGraph()
@@ -155,7 +155,7 @@ importall MetaGraphs
         T = eltype(mg)
         U = weighttype(mg)
         @test sprint(show, mg) == "empty directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
-        @test @inferred(add_vertices!(mg, 5))
+        @test @inferred(add_vertices!(mg, 5)) == 5
         @test sprint(show, mg) == "{5, 0} directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
 
