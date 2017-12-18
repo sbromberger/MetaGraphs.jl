@@ -137,7 +137,7 @@ importall MetaGraphs
     for gbig in [SimpleGraph(0xff), SimpleDiGraph(0xff)]
         mg = MetaGraph(gbig)
         @test @inferred(!add_vertex!(mg))    # overflow
-        @test @inferred(!add_vertices!(mg, 10)) == 10
+        @test @inferred(add_vertices!(mg, 10)) < 10
     end
 
     gx = SimpleGraph()
