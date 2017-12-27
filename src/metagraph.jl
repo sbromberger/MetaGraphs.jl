@@ -16,8 +16,8 @@ function MetaGraph(x, weightfield::Symbol, defaultweight::U) where U <: Real
     eprops = Dict{SimpleEdge{T},PropDict}()
     gprops = PropDict()
     metaindex = MetaDict()
-    indicies = Set{Symbol}()
-    MetaGraph(g, vprops, eprops, gprops, weightfield, defaultweight, metaindex, indicies)
+    idxs = Set{Symbol}()
+    MetaGraph(g, vprops, eprops, gprops, weightfield, defaultweight, metaindex, idxs)
 end
 
 MetaGraph() = MetaGraph(SimpleGraph())

@@ -16,9 +16,11 @@ function MetaDiGraph(x, weightfield::Symbol, defaultweight::U) where U <: Real
     eprops = Dict{SimpleEdge{T},PropDict}()
     gprops = PropDict()
     metaindex = MetaDict()
-    indicies = Set{Symbol}()
+    idxs = Set{Symbol}()
 
-    MetaDiGraph(g, vprops, eprops, gprops, weightfield, defaultweight, metaindex, indices)
+    MetaDiGraph(g, vprops, eprops, gprops,
+        weightfield, defaultweight,
+        metaindex, idxs)
 end
 
 MetaDiGraph() = MetaDiGraph(SimpleDiGraph())
