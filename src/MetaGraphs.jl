@@ -104,13 +104,14 @@ end
     rem_edge!(g.graph, x...)
 end
 
-function default_index_value(v, prop, index_values)
-    if in("$(string(prop))$v", index_values)
+
+function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any})
+    if in((string(prop)) * v, index_values)
         srand(v+hash(prop))
         val = randstring()
         warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
     else
-        val = "$(string(prop))$v"
+        val = string(prop) * string(v)
     end
     return val
 end
@@ -300,16 +301,12 @@ function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
     in(prop, g.indices) && return
     index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
     length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
+    index_values = Set(index_values)
 
     g.metaindex[prop] = Dict{Any, Integer}()
     for v in 1:size(g)[1]
         if !haskey(g.vprops, v) || !haskey(g.vprops[v], prop)
-            if in("$(string(prop))$v", index_values)
-                val = randstring()
-                warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
-            else
-                val = "$(string(prop))$v"
-            end
+            val = default_index_value(v, prop, index_values)
             set_prop!(g, v, prop, val)
         end
         g.metaindex[prop][g.vprops[v][prop]] = v
