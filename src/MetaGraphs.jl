@@ -105,17 +105,6 @@ end
 end
 
 
-function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any})
-    if in((string(prop)) * v, index_values)
-        srand(v+hash(prop))
-        val = randstring()
-        warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
-    else
-        val = string(prop) * string(v)
-    end
-    return val
-end
-
 """
     add_vertex!(g)
     add_vertex!(g, s, v)
@@ -166,13 +155,20 @@ function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Int
 end
 
 function getindex(g::AbstractMetaGraph, prop::Symbol)
-    !haskey(g.metaindex, prop) && error("'$prop' not an indexing property")
+    !haskey(g.metaindex, prop) && error("':$prop' is not an index")
     return g.metaindex[prop]
 end
 
 function getindex(g::AbstractMetaGraph, indx::Any, prop::Symbol)
     haskey(g.metaindex, prop) || error("':$prop' is not an index")
     typeof(indx) <: eltype(keys(g.metaindex[prop])) || error("Index type does not match keys of metaindex '$prop'")
+    !haskey(g.metaindex[prop], indx) && error("No node with prop $prop and key $indx")
+    return g.metaindex[prop][indx]
+end
+
+function getindex(g::AbstractMetaGraph, indx::Integer, prop::Symbol)
+    haskey(g.metaindex, prop) || error("':$prop' is not an index")
+    eltype(keys(g.metaindex[prop])) <: Integer || return props(g,indx)[prop]
     !haskey(g.metaindex[prop], indx) && error("No node with prop $prop and key $indx")
     return g.metaindex[prop][indx]
 end
@@ -287,6 +283,17 @@ rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v],
 rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
 
 rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T = rem_prop!(g, Edge(T(u), T(v)), prop)
+
+
+function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any})
+    val = string(prop) * string(v)
+    if in(val, index_values)
+        srand(v+hash(prop))
+        val = randstring()
+        warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
+    end
+    return val
+end
 
 """
     set_indexing_prop!(g, prop)

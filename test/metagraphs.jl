@@ -313,12 +313,12 @@ end
     dG = MetaDiGraph(100)
 
     for i in 1:100
-        set_prop!(G, i, :name, "gnode_" * i)
-        set_prop!(dG, i, :name, "dgnode_" * i)
+        set_prop!(G, i, :name, "gnode_$i")
+        set_prop!(dG, i, :name, "dgnode_$i")
     end
 
-    @test set_indexing_prop!(G, :name) == Set{Symbol}(:name)
-    @test set_indexing_prop!(dG, :name) == Set{Symbol}(:name)
+    @test set_indexing_prop!(G, :name) == Set{Symbol}([:name])
+    @test set_indexing_prop!(dG, :name) == Set{Symbol}([:name])
 
     @test G["gnode_3", :name] == 3
     @test dG["dgnode_99", :name] == 99
@@ -330,9 +330,14 @@ end
     set_indexing_prop!(dG, 42, :foo, "bar")
 
     @test G["foo10", :foo] == 10
+    @test G[12, :foo] == "foo12"
     @test G["bar", :foo] == 42
+    @test G[42, :foo] == "bar"
+
     @test dG["foo30", :foo] == 30
+    @test dG[79, :foo] == "foo79"
     @test dG["bar", :foo] == 42
+    @test dG[42, :foo] == "bar"
 
     @test_throws ErrorException set_prop!(G, 3, :name, "name3")
     @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
