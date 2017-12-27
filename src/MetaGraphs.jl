@@ -298,7 +298,7 @@ are already set, each vertex must have unique values. Optionally, set the index
 ("(prop)(v)").
 """
 function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
-    in(prop, g.indices) && return
+    in(prop, g.indices) && return g.indices
     index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
     length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
     index_values = Set(index_values)
@@ -312,6 +312,7 @@ function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol)
         g.metaindex[prop][g.vprops[v][prop]] = v
     end
     push!(g.indices, prop)
+    return g.indices
 end
 
 function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
@@ -326,7 +327,7 @@ function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val:
     delete!(g.metaindex[prop], g.vprops[v][prop])
     g.metaindex[prop][val] = v
     g.vprops[v][prop] = val
-    return
+    return g.indices
 end
 """
     clear_props!(g)
