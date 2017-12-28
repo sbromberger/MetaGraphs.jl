@@ -325,6 +325,16 @@ end
 
     @test_throws ErrorException set_indexing_prop!(G, 4, :name, "gnode_3")
     @test_throws ErrorException set_indexing_prop!(dG, 4, :name, "dgnode_3")
+    @test_throws ErrorException set_prop!(G, 3, :name, "name3")
+    @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
+    @test_throws ErrorException set_props!(G, 5, Dict(:name=>"name", :other_name=>"something"))
+    @test_throws ErrorException set_props!(dG, 5, Dict(:name=>"name", :other_name=>"something"))
+
+    set_indexing_prop!(G, 43, :foo, "foo1")
+    set_indexing_prop!(dG, 43, :foo, "foo1")
+    @test G[1, :foo] != "foo1"
+    @test dG[1, :foo] != "foo1"
+
 
     set_indexing_prop!(G, 42, :foo, "bar")
     set_indexing_prop!(dG, 42, :foo, "bar")
@@ -339,7 +349,7 @@ end
     @test dG["bar", :foo] == 42
     @test dG[42, :foo] == "bar"
 
-    @test_throws ErrorException set_prop!(G, 3, :name, "name3")
-    @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
+    @test_throws ErrorException G[:not_a_key]
+    @test_throws ErrorException dG[:not_a_key]
 
 end
