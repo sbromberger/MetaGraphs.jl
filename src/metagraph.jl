@@ -5,6 +5,8 @@ mutable struct MetaGraph{T<:Integer,U<:Real} <: AbstractMetaGraph{T}
     gprops::PropDict
     weightfield::Symbol
     defaultweight::U
+    metaindex::MetaDict
+    indices::Set{Symbol}
 end
 
 function MetaGraph(x, weightfield::Symbol, defaultweight::U) where U <: Real
@@ -13,7 +15,9 @@ function MetaGraph(x, weightfield::Symbol, defaultweight::U) where U <: Real
     vprops = Dict{T,PropDict}()
     eprops = Dict{SimpleEdge{T},PropDict}()
     gprops = PropDict()
-    MetaGraph(g, vprops, eprops, gprops, weightfield, defaultweight)
+    metaindex = MetaDict()
+    idxs = Set{Symbol}()
+    MetaGraph(g, vprops, eprops, gprops, weightfield, defaultweight, metaindex, idxs)
 end
 
 MetaGraph() = MetaGraph(SimpleGraph())

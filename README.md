@@ -109,4 +109,26 @@ julia> enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
  1
  2
  3
+
+# use vertex values as indices
+julia> G = MetaGraph(100)
+{100, 0} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
+
+julia> for i in 1:100
+           set_prop!(G, i, :name, "node$i")
+       end
+
+julia> set_indexing_prop!(G, :name)
+Set(Symbol[:name])
+
+# nodes can now be found by the value in the index
+julia> G["node4", :name]
+4
+
+# You can also find the value of an index by the vertex number (note, this behavior will dominate if index values are also integers)
+julia> G[4, :name]
+"node4"
+
+julia> set_prop!(G, 3, :name, "name3")
+ERROR: ':name' is an indexing property, use `set_indexing_prop!()` instead
 ```

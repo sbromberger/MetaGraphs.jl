@@ -305,5 +305,63 @@ importall MetaGraphs
     @test rem_vertex!(mga, 1)
     @test get_prop(mga, 1, :name) == "5"
     @test isempty(props(mga, 5))
-            
+
+end
+
+@testset "MetaIndexing" begin
+    G = MetaGraph(100)
+    dG = MetaDiGraph(100)
+
+    for i in 1:100
+        set_prop!(G, i, :name, "gnode_$i")
+        set_prop!(dG, i, :name, "dgnode_$i")
+    end
+
+    for i in 1:100
+        set_prop!(G, i, :not_unique, "$(i%5)")
+        set_prop!(dG, i, :not_unique, "$(i%5)")
+    end
+
+    @test set_indexing_prop!(G, :name) == Set{Symbol}([:name])
+    @test set_indexing_prop!(dG, :name) == Set{Symbol}([:name])
+    @test_throws ErrorException set_indexing_prop!(G, :not_unique)
+    @test_throws ErrorException set_indexing_prop!(dG, :not_unique)
+
+    @test G["gnode_3", :name] == 3
+    @test dG["dgnode_99", :name] == 99
+
+    @test_throws ErrorException set_indexing_prop!(G, 4, :name, "gnode_3")
+    @test_throws ErrorException set_indexing_prop!(dG, 4, :name, "dgnode_3")
+    @test_throws ErrorException set_prop!(G, 3, :name, "name3")
+    @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
+    @test_throws ErrorException set_props!(G, 5, Dict(:name=>"name", :other_name=>"something"))
+    @test_throws ErrorException set_props!(dG, 5, Dict(:name=>"name", :other_name=>"something"))
+
+    set_indexing_prop!(G, 50, :name, "another name")
+    set_indexing_prop!(G, 50, :name, "another name")
+
+    set_indexing_prop!(G, 43, :foo, "foo1")
+    set_indexing_prop!(dG, 43, :foo, "foo1")
+    @test G[1, :foo] != "foo1"
+    @test dG[1, :foo] != "foo1"
+
+    set_indexing_prop!(G, 42, :foo, "bar")
+    set_indexing_prop!(dG, 42, :foo, "bar")
+
+    @test G["foo10", :foo] == 10
+    @test G[12, :foo] == "foo12"
+    @test G["bar", :foo] == 42
+    @test G[42, :foo] == "bar"
+    @test isa(G[:foo], Dict{Any, Integer})
+    @test isa(dG[:foo], Dict{Any, Integer})
+
+
+    @test dG["foo30", :foo] == 30
+    @test dG[79, :foo] == "foo79"
+    @test dG["bar", :foo] == 42
+    @test dG[42, :foo] == "bar"
+
+    @test_throws ErrorException G[:not_a_key]
+    @test_throws ErrorException dG[:not_a_key]
+
 end
