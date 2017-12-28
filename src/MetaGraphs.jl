@@ -168,8 +168,7 @@ end
 
 function getindex(g::AbstractMetaGraph, indx::Integer, prop::Symbol)
     haskey(g.metaindex, prop) || error("':$prop' is not an index")
-    eltype(keys(g.metaindex[prop])) <: Integer || return props(g,indx)[prop]
-    return g.metaindex[prop][indx]
+    return props(g,indx)[prop]
 end
 
 size(d::MetaWeights) = (d.n, d.n)

@@ -317,8 +317,15 @@ end
         set_prop!(dG, i, :name, "dgnode_$i")
     end
 
+    for i in 1:100
+        set_prop!(G, i, :not_unique, "$(i%5)")
+        set_prop!(dG, i, :not_unique, "$(i%5)")
+    end
+
     @test set_indexing_prop!(G, :name) == Set{Symbol}([:name])
     @test set_indexing_prop!(dG, :name) == Set{Symbol}([:name])
+    @test_throws ErrorException set_indexing_prop!(G, :not_unique)
+    @test_throws ErrorException set_indexing_prop!(dG, :not_unique)
 
     @test G["gnode_3", :name] == 3
     @test dG["dgnode_99", :name] == 99
@@ -335,7 +342,6 @@ end
     @test G[1, :foo] != "foo1"
     @test dG[1, :foo] != "foo1"
 
-
     set_indexing_prop!(G, 42, :foo, "bar")
     set_indexing_prop!(dG, 42, :foo, "bar")
 
@@ -343,6 +349,9 @@ end
     @test G[12, :foo] == "foo12"
     @test G["bar", :foo] == 42
     @test G[42, :foo] == "bar"
+    @test isa(G[:foo], Dict{Any, Integer})
+    @test isa(dG[:foo], Dict{Any, Integer})
+
 
     @test dG["foo30", :foo] == 30
     @test dG[79, :foo] == "foo79"
