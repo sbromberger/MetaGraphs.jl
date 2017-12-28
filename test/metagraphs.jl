@@ -337,6 +337,9 @@ end
     @test_throws ErrorException set_props!(G, 5, Dict(:name=>"name", :other_name=>"something"))
     @test_throws ErrorException set_props!(dG, 5, Dict(:name=>"name", :other_name=>"something"))
 
+    set_indexing_prop!(G, 50, :name, "another name")
+    set_indexing_prop!(G, 50, :name, "another name")
+
     set_indexing_prop!(G, 43, :foo, "foo1")
     set_indexing_prop!(dG, 43, :foo, "foo1")
     @test G[1, :foo] != "foo1"
