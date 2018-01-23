@@ -49,11 +49,7 @@ abstract type AbstractMetaGraph{T} <: AbstractGraph{T} end
 
 function show(io::IO, g::AbstractMetaGraph)
     dir = is_directed(g) ? "directed" : "undirected"
-    if nv(g) == 0
-        print(io, "empty $dir $(eltype(g)) metagraph with $(weighttype(g)) weights defined by :$(g.weightfield) (default weight $(g.defaultweight))")
-    else
-        print(io, "{$(nv(g)), $(ne(g))} $dir $(eltype(g)) metagraph with $(weighttype(g)) weights defined by :$(g.weightfield) (default weight $(g.defaultweight))")
-    end
+    print(io, "{$(nv(g)), $(ne(g))} $dir $(eltype(g)) metagraph with $(weighttype(g)) weights defined by :$(g.weightfield) (default weight $(g.defaultweight))")
 end
 
 @inline fadj(g::AbstractMetaGraph, x...) = fadj(g.graph, x...)
