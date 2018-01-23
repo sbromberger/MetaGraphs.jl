@@ -145,7 +145,7 @@ importall MetaGraphs
         mg = MetaGraph(g)
         T = eltype(mg)
         U = weighttype(mg)
-        @test sprint(show, mg) == "empty undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
+        @test sprint(show, mg) == "{0, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
         @test @inferred(add_vertices!(g, 5)) == 5
         @test sprint(show, mg) == "{5, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
@@ -154,7 +154,7 @@ importall MetaGraphs
         mg = MetaDiGraph(g)
         T = eltype(mg)
         U = weighttype(mg)
-        @test sprint(show, mg) == "empty directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
+        @test sprint(show, mg) == "{0, 0} directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
         @test @inferred(add_vertices!(mg, 5)) == 5
         @test sprint(show, mg) == "{5, 0} directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
