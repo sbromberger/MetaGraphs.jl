@@ -12,7 +12,7 @@ import LightGraphs:
     AbstractGraph, src, dst, edgetype, nv,
     ne, vertices, edges, is_directed,
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
-    has_vertex, has_edge, in_neighbors, out_neighbors,
+    has_vertex, has_edge, inneighbors, outneighbors,
     weights, indegree, outdegree, degree,
     induced_subgraph,
     loadgraph, savegraph, AbstractGraphFormat
@@ -67,8 +67,8 @@ edges(g::AbstractMetaGraph) = edges(g.graph)
 has_vertex(g::AbstractMetaGraph, x...) = has_vertex(g.graph, x...)
 @inline has_edge(g::AbstractMetaGraph, x...) = has_edge(g.graph, x...)
 
-in_neighbors(g::AbstractMetaGraph, v::Integer) = in_neighbors(g.graph, v)
-out_neighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
+inneighbors(g::AbstractMetaGraph, v::Integer) = inneighbors(g.graph, v)
+outneighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 
 issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
