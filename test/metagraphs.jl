@@ -47,7 +47,7 @@ importall MetaGraphs
 
         @test @inferred(vertices(mg)) == 1:4
         @test Edge(2,3) in edges(mg)
-        @test @inferred(out_neighbors(mg,2)) == in_neighbors(mg,2) == neighbors(mg,2)
+        @test @inferred(outneighbors(mg,2)) == inneighbors(mg,2) == neighbors(mg,2)
         @test @inferred(has_edge(mg, 2, 3))
         @test @inferred(has_edge(mg, 3, 2))
 
@@ -70,7 +70,7 @@ importall MetaGraphs
         @test @inferred(!rem_vertex!(mga, 10))
 
         @test @inferred(zero(mg)) == MetaGraph{eltype(mg), weighttype(mg)}()
-        @test @inferred(eltype(mg)) == eltype(out_neighbors(mg, 1)) == eltype(nv(mg))
+        @test @inferred(eltype(mg)) == eltype(outneighbors(mg, 1)) == eltype(nv(mg))
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
         @test @inferred(nv(MetaGraph{T, U}(6))) == 6
@@ -104,8 +104,8 @@ importall MetaGraphs
 
         @test @inferred(vertices(mg)) == 1:4
         @test Edge(2,3) in edges(mg)
-        @test @inferred(out_neighbors(mg,2)) == [3]
-        @test @inferred(in_neighbors(mg,2)) == [1]
+        @test @inferred(outneighbors(mg,2)) == [3]
+        @test @inferred(inneighbors(mg,2)) == [1]
         @test @inferred(has_edge(mg, 2, 3))
         @test @inferred(!has_edge(mg, 3, 2))
 
@@ -128,7 +128,7 @@ importall MetaGraphs
         @test @inferred(!rem_vertex!(mga, 10))
 
         @test @inferred(zero(mg)) == MetaDiGraph{eltype(mg), weighttype(mg)}()
-        @test @inferred(eltype(mg)) == eltype(out_neighbors(mg, 1)) == eltype(nv(mg))
+        @test @inferred(eltype(mg)) == eltype(outneighbors(mg, 1)) == eltype(nv(mg))
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
         @test @inferred(nv(MetaDiGraph{T, U}(6))) == 6
