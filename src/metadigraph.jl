@@ -59,10 +59,12 @@ weighttype(g::MetaDiGraph{T,U}) where T where U = U
 props(g::MetaDiGraph, e::SimpleEdge) = get(g.eprops, e, PropDict())
 
 function set_props!(g::MetaDiGraph, e::SimpleEdge, d::Dict)
-    if !_hasdict(g, e)
-        g.eprops[e] = d
-    else
-        merge!(g.eprops[e], d)
+    if has_edge(g, e)
+        if !_hasdict(g, e)
+            g.eprops[e] = d
+        else
+            merge!(g.eprops[e], d)
+        end
     end
 end
 
