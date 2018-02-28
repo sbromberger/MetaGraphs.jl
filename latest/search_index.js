@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.rem_prop!",
     "category": "Method",
-    "text": "rem_prop!(g, prop)\nrem_prop!(g, v, prop)\nrem_prop!(g, e, prop)\nrem_prop!(g, s, d, prop)\n\nRemove property prop from graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). If property does not exist, will not do anything.\n\n\n\n"
+    "text": "rem_prop!(g, prop)\nrem_prop!(g, v, prop)\nrem_prop!(g, e, prop)\nrem_prop!(g, s, d, prop)\n\nRemove property prop from graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). If property, vertex, or edge does not exist, will not do anything.\n\n\n\n"
 },
 
 {
@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.set_prop!",
     "category": "Method",
-    "text": "set_prop!(g, prop, val)\nset_prop!(g, v, prop, val)\nset_prop!(g, e, prop, val)\nset_prop!(g, s, d, prop, val)\n\nSet (replace) property prop with value val in graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d).\n\n\n\n"
+    "text": "set_prop!(g, prop, val)\nset_prop!(g, v, prop, val)\nset_prop!(g, e, prop, val)\nset_prop!(g, s, d, prop, val)\n\nSet (replace) property prop with value val in graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). Will return false if vertex or edge does not exist, true otherwise\n\n\n\n"
 },
 
 {
@@ -141,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.set_props!",
     "category": "Method",
-    "text": "set_props!(g, dict)\nset_props!(g, v, dict)\nset_props!(g, e, dict)\nset_props!(g, s, d, dict)\n\nBulk set (merge) properties contained in dict with graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d).\n\n\n\n"
+    "text": "set_props!(g, dict)\nset_props!(g, v, dict)\nset_props!(g, e, dict)\nset_props!(g, s, d, dict)\n\nBulk set (merge) properties contained in dict with graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). Will do nothing if vertex or edge does not exist.\n\n\n\n"
 },
 
 {
