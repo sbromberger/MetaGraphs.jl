@@ -58,10 +58,12 @@ end
 
 function set_props!(g::MetaGraph, _e::SimpleEdge, d::Dict)
     e = LightGraphs.is_ordered(_e) ? _e : reverse(_e)
-    if !_hasdict(g, e)
-        g.eprops[e] = d
-    else
-        merge!(g.eprops[e], d)
+    if has_edge(g, e)
+        if !_hasdict(g, e)
+            g.eprops[e] = d
+        else
+            merge!(g.eprops[e], d)
+        end
     end
 end
 

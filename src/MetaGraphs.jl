@@ -1,3 +1,4 @@
+__precompile__()
 module MetaGraphs
 using LightGraphs
 using JLD2
@@ -12,7 +13,7 @@ import LightGraphs:
     AbstractGraph, src, dst, edgetype, nv,
     ne, vertices, edges, is_directed,
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
-    has_vertex, has_edge, in_neighbors, out_neighbors,
+    has_vertex, has_edge, inneighbors, outneighbors,
     weights, indegree, outdegree, degree,
     induced_subgraph,
     loadgraph, savegraph, AbstractGraphFormat
@@ -67,8 +68,8 @@ edges(g::AbstractMetaGraph) = edges(g.graph)
 has_vertex(g::AbstractMetaGraph, x...) = has_vertex(g.graph, x...)
 @inline has_edge(g::AbstractMetaGraph, x...) = has_edge(g.graph, x...)
 
-in_neighbors(g::AbstractMetaGraph, v::Integer) = in_neighbors(g.graph, v)
-out_neighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
+inneighbors(g::AbstractMetaGraph, v::Integer) = inneighbors(g.graph, v)
+outneighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 
 issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
 
@@ -125,11 +126,38 @@ function add_vertex!(g::AbstractMetaGraph, s::Symbol, v)
 end
 
 function rem_vertex!(g::AbstractMetaGraph, v::Integer)
-    lastprops = props(g, nv(g))
+    v in vertices(g) || return false
+    lastv = nv(g)
+    lastvprops = props(g, lastv)
+    
+    lasteoutprops = Dict(n => props(g, lastv, n) for n in outneighbors(g, lastv))
+    lasteinprops = Dict(n => props(g, n, lastv) for n in inneighbors(g, lastv))
     clear_props!(g, v)
-    delete!(g.vprops, nv(g))
+    for n in outneighbors(g, lastv)
+        clear_props!(g, lastv, n)
+    end
+
+    for n in inneighbors(g, lastv)
+        clear_props!(g, n, lastv)
+    end
+
+    for n in outneighbors(g, v)
+        clear_props!(g, v, n)
+    end
+
+    for n in inneighbors(g, v)
+        clear_props!(g, n, v)
+    end
+    clear_props!(g, lastv)
     retval = rem_vertex!(g.graph, v)
-    retval && set_props!(g, v, lastprops)
+    retval && set_props!(g, v, lastvprops)
+    for n in outneighbors(g, v)
+        set_props!(g, v, n, lasteoutprops[n])
+    end
+
+    for n in inneighbors(g, v)
+        set_props!(g, n, v, lasteinprops[n])
+    end
     return retval
 end
 
@@ -227,16 +255,20 @@ has_prop(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = has_prop(
 
 Bulk set (merge) properties contained in `dict` with graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
+Will do nothing if vertex or edge does not exist.
 """
 set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
-set_props!(g::AbstractMetaGraph, v::Integer, d::Dict) =
-    if length(intersect(keys(d), g.indices)) != 0
-        error("The following properties are indexing_props and cannot be updated: $(intersect(keys(d), g.indices))")
-    elseif !_hasdict(g, v)
-        g.vprops[v] = d
-    else
-        merge!(g.vprops[v], d)
+function set_props!(g::AbstractMetaGraph, v::Integer, d::Dict)
+    if has_vertex(g, v)
+        if length(intersect(keys(d), g.indices)) != 0
+            error("The following properties are indexing_props and cannot be updated: $(intersect(keys(d), g.indices))")
+        elseif !_hasdict(g, v)
+            g.vprops[v] = d
+        else
+            merge!(g.vprops[v], d)
+        end
     end
+end
 # set_props!(g::AbstractMetaGraph, e::SimpleEdge, d::Dict) is dependent on directedness.
 
 set_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, d::Dict) where T = set_props!(g, Edge(T(u), T(v)), d)
@@ -249,6 +281,7 @@ set_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, d::Dict) where T = s
 
 Set (replace) property `prop` with value `val` in graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
+Will return false if vertex or edge does not exist, true otherwise
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) =
@@ -269,7 +302,7 @@ set_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol, val) wh
 
 Remove property `prop` from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
-If property does not exist, will not do anything.
+If property, vertex, or edge does not exist, will not do anything.
 """
 
 rem_prop!(g::AbstractMetaGraph, prop::Symbol) = delete!(g.gprops, prop)
@@ -339,8 +372,8 @@ end
 Remove all defined properties from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
 """
-clear_props!(g::AbstractMetaGraph, v::Integer) = _hasdict(g, v) && (g.vprops[v] = PropDict())
-clear_props!(g::AbstractMetaGraph, e::SimpleEdge) = _hasdict(g, e) && (g.eprops[e] = PropDict())
+clear_props!(g::AbstractMetaGraph, v::Integer) = _hasdict(g, v) && delete!(g.vprops, v)
+clear_props!(g::AbstractMetaGraph, e::SimpleEdge) = _hasdict(g, e) && delete!(g.eprops, e)
 clear_props!(g::AbstractMetaGraph) = g.gprops = PropDict()
 
 clear_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer) where T = clear_props!(g, Edge(T(u), T(v)))
