@@ -52,7 +52,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.clear_props!-Tuple{MetaGraphs.AbstractMetaGraph,Integer}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.clear_props!",
-    "category": "Method",
+    "category": "method",
     "text": "clear_props!(g)\nclear_props!(g, v)\nclear_props!(g, e)\nclear_props!(g, s, d)\n\nRemove all defined properties from graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d).\n\n\n\n"
 },
 
@@ -60,7 +60,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.defaultweight!-Tuple{MetaGraphs.AbstractMetaGraph,Real}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.defaultweight!",
-    "category": "Method",
+    "category": "method",
     "text": "defaultweight!(g, weight)\n\nSet the default weight for metagraph g\n\n\n\n"
 },
 
@@ -68,7 +68,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.defaultweight-Tuple{MetaGraphs.AbstractMetaGraph}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.defaultweight",
-    "category": "Method",
+    "category": "method",
     "text": "defaultweight(g)\n\nReturn the default weight for metagraph g.\n\n\n\n"
 },
 
@@ -76,7 +76,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.filter_edges-Tuple{MetaGraphs.AbstractMetaGraph,Function}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.filter_edges",
-    "category": "Method",
+    "category": "method",
     "text": "filter_edges(g, prop[, val])\nfilter_edges(g, fn)\n\nReturn an iterator to all edges that have property prop defined (optionally as val), or where function fn returns true only for edges that should be included in the iterator.\n\nfn should be of the form\n\nfn(g::AbstractMetaGraph{T}, e::SimpleEdge{T})::Boolean\n\nwhere e is replaced with the edge being evaluated.\n\n\n\n"
 },
 
@@ -84,7 +84,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.filter_vertices-Tuple{MetaGraphs.AbstractMetaGraph,Function}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.filter_vertices",
-    "category": "Method",
+    "category": "method",
     "text": "filter_vertices(g, prop[, val])\nfilter_vertices(g, fn)\n\nReturn an iterator to all vertices that have property prop defined (optionally as val), or where function fn returns true only for vertices that should be included in the iterator.\n\nfn should be of the form\n\nfn(g::AbstractMetaGraph, v::Integer)::Boolean\n\nwhere v is replaced with the vertex being evaluated.\n\n\n\n"
 },
 
@@ -92,7 +92,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.get_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.get_prop",
-    "category": "Method",
+    "category": "method",
     "text": "get_prop(g, prop)\nget_prop(g, v, prop)\nget_prop(g, e, prop)\nget_prop(g, s, d, prop)\n\nReturn the property prop defined for graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). If property is not defined, return an error.\n\n\n\n"
 },
 
@@ -100,7 +100,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.has_prop-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.has_prop",
-    "category": "Method",
+    "category": "method",
     "text": "has_prop(g, prop)\nhas_prop(g, v, prop)\nhas_prop(g, e, prop)\nhas_prop(g, s, d, prop)\n\nReturn true if the property prop is defined for graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d).\n\n\n\n"
 },
 
@@ -108,7 +108,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.props-Tuple{MetaGraphs.AbstractMetaGraph}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.props",
-    "category": "Method",
+    "category": "method",
     "text": "props(g)\nprops(g, v)\nprops(g, e)\nprops(g, s, d)\n\nReturn a dictionary of all metadata from graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d).\n\n\n\n"
 },
 
@@ -116,7 +116,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.rem_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.rem_prop!",
-    "category": "Method",
+    "category": "method",
     "text": "rem_prop!(g, prop)\nrem_prop!(g, v, prop)\nrem_prop!(g, e, prop)\nrem_prop!(g, s, d, prop)\n\nRemove property prop from graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). If property, vertex, or edge does not exist, will not do anything.\n\n\n\n"
 },
 
@@ -124,7 +124,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.set_indexing_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.set_indexing_prop!",
-    "category": "Method",
+    "category": "method",
     "text": "set_indexing_prop!(g, prop)\nset_indexing_prop!(g, v, prop, val)\n\nMake property prop into an indexing property. If any values for this property are already set, each vertex must have unique values. Optionally, set the index val for vertex v. Any vertices without values will be set to a default (\"(prop)(v)\").\n\n\n\n"
 },
 
@@ -132,7 +132,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.set_prop!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol,Any}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.set_prop!",
-    "category": "Method",
+    "category": "method",
     "text": "set_prop!(g, prop, val)\nset_prop!(g, v, prop, val)\nset_prop!(g, e, prop, val)\nset_prop!(g, s, d, prop, val)\n\nSet (replace) property prop with value val in graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). Will return false if vertex or edge does not exist, true otherwise\n\n\n\n"
 },
 
@@ -140,7 +140,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.set_props!-Tuple{MetaGraphs.AbstractMetaGraph,Dict}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.set_props!",
-    "category": "Method",
+    "category": "method",
     "text": "set_props!(g, dict)\nset_props!(g, v, dict)\nset_props!(g, e, dict)\nset_props!(g, s, d, dict)\n\nBulk set (merge) properties contained in dict with graph g, vertex v, or edge e (optionally referenced by source vertex s and destination vertex d). Will do nothing if vertex or edge does not exist.\n\n\n\n"
 },
 
@@ -148,7 +148,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.weightfield!-Tuple{MetaGraphs.AbstractMetaGraph,Symbol}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.weightfield!",
-    "category": "Method",
+    "category": "method",
     "text": "weightfield!(g, prop)\n\nSet the field that contains weight information to prop.\n\n\n\n"
 },
 
@@ -156,7 +156,7 @@ var documenterSearchIndex = {"docs": [
     "location": "metagraphs.html#MetaGraphs.weightfield-Tuple{MetaGraphs.AbstractMetaGraph}",
     "page": "MetaGraphs Functions",
     "title": "MetaGraphs.weightfield",
-    "category": "Method",
+    "category": "method",
     "text": "weightfield(g)\n\nReturn the field that contains weight information for metagraph g.\n\n\n\n"
 },
 
