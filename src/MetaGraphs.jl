@@ -71,7 +71,7 @@ has_vertex(g::AbstractMetaGraph, x...) = has_vertex(g.graph, x...)
 inneighbors(g::AbstractMetaGraph, v::Integer) = inneighbors(g.graph, v)
 outneighbors(g::AbstractMetaGraph, v::Integer) = fadj(g.graph, v)
 
-issubset(g::T, h::T) where T<:AbstractMetaGraph = issubset(g.graph, h.graph)
+issubset(g::T, h::T) where T <: AbstractMetaGraph = issubset(g.graph, h.graph)
 
 """
     add_edge!(g, u, v, s, val)
@@ -113,7 +113,7 @@ end
     return true if the vertex has been added, false otherwise.
 """
 add_vertex!(g::AbstractMetaGraph) = add_vertex!(g.graph)
-function add_vertex!(g::AbstractMetaGraph,d::Dict)
+function add_vertex!(g::AbstractMetaGraph, d::Dict)
     add_vertex!(g) || return false
     set_props!(g, nv(g), d)
     return true
@@ -140,28 +140,30 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     for n in inneighbors(g, lastv)
         clear_props!(g, n, lastv)
     end
-
-    for n in outneighbors(g, v)
-        clear_props!(g, v, n)
-    end
-
-    for n in inneighbors(g, v)
-        clear_props!(g, n, v)
+    if v != lastv # ignore if we're removing the last vertex.
+        for n in outneighbors(g, v)
+            clear_props!(g, v, n)
+        end
+        for n in inneighbors(g, v)
+            clear_props!(g, n, v)
+        end
     end
     clear_props!(g, lastv)
     retval = rem_vertex!(g.graph, v)
     retval && set_props!(g, v, lastvprops)
-    for n in outneighbors(g, v)
-        set_props!(g, v, n, lasteoutprops[n])
-    end
-
-    for n in inneighbors(g, v)
-        set_props!(g, n, v, lasteinprops[n])
+    if v != lastv # ignore if we're removing the last vertex.
+        for n in outneighbors(g, v)
+            set_props!(g, v, n, lasteoutprops[n])
+        end
+        
+        for n in inneighbors(g, v)
+            set_props!(g, n, v, lasteinprops[n])
+        end
     end
     return retval
 end
 
-struct MetaWeights{T<:Integer,U<:Real} <: AbstractMatrix{U}
+struct MetaWeights{T <: Integer,U <: Real} <: AbstractMatrix{U}
     n::T
     weightfield::Symbol
     defaultweight::U
@@ -192,7 +194,7 @@ end
 
 function getindex(g::AbstractMetaGraph, indx::Integer, prop::Symbol)
     haskey(g.metaindex, prop) || error("':$prop' is not an index")
-    return props(g,indx)[prop]
+    return props(g, indx)[prop]
 end
 
 size(d::MetaWeights) = (d.n, d.n)
@@ -286,10 +288,10 @@ Will return false if vertex or edge does not exist, true otherwise
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) =
     if in(prop, g.indices)
-        error("':$prop' is an indexing property, use `set_indexing_prop!()` instead")
-    else
-        set_props!(g, v, Dict(prop => val))
-    end
+    error("':$prop' is an indexing property, use `set_indexing_prop!()` instead")
+else
+    set_props!(g, v, Dict(prop => val))
+end
 set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
 set_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol, val) where T = set_prop!(g, Edge(T(u), T(v)), prop, val)
@@ -316,10 +318,10 @@ rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T
 
 Provides a default index value for a vertex if no value currently exists. The default is a string: "\$prop\$i" where `prop` is the property name and `i` is the vertex number. If some other vertex already has this name, a randomized string is generated (though the way it is generated is deterministic).
 """
-function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude=nothing)
+function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude = nothing)
     val = string(prop) * string(v)
     if in(val, index_values) || val == exclude
-        srand(v+hash(prop))
+        srand(v + hash(prop))
         val = randstring()
         warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
     end
@@ -335,16 +337,16 @@ are already set, each vertex must have unique values. Optionally, set the index
 `val` for vertex `v`. Any vertices without values will be set to a default
 ("(prop)(v)").
 """
-function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude=nothing)
+function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude = nothing)
     in(prop, g.indices) && return g.indices
     index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
     length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
     index_values = Set(index_values)
 
-    g.metaindex[prop] = Dict{Any, Integer}()
+    g.metaindex[prop] = Dict{Any,Integer}()
     for v in 1:size(g)[1]
         if !haskey(g.vprops, v) || !haskey(g.vprops[v], prop)
-            val = default_index_value(v, prop, index_values, exclude=exclude)
+            val = default_index_value(v, prop, index_values, exclude = exclude)
             set_prop!(g, v, prop, val)
         end
         g.metaindex[prop][g.vprops[v][prop]] = v
@@ -354,7 +356,7 @@ function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude=nothing)
 end
 
 function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
-    !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude=val)
+    !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude = val)
     (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return g.indices
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
 

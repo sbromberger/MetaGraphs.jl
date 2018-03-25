@@ -16,18 +16,18 @@ importall MetaGraphs
     dgx = PathDiGraph(4)
 
     mg = MetaGraph()
-    @test add_vertex!(mg,:color,"red") && get_prop(mg,nv(mg),:color) == "red"
-    @test add_vertex!(mg,Dict(:color=>"red",:prop2=>"prop2")) && props(mg,nv(mg)) == Dict(:color=>"red",:prop2=>"prop2")
-    @test add_edge!(mg,1,2,:color,"blue") && get_prop(mg,1,2,:color) ==  "blue"
-    @test add_vertex!(mg) && add_edge!(mg,1,3,Dict(:color => "red",:prop2 => "prop2")) && props(mg,1,3) == Dict(:color=>"red",:prop2=>"prop2")
+    @test add_vertex!(mg, :color, "red") && get_prop(mg, nv(mg), :color) == "red"
+    @test add_vertex!(mg, Dict(:color => "red", :prop2 => "prop2")) && props(mg, nv(mg)) == Dict(:color => "red", :prop2 => "prop2")
+    @test add_edge!(mg, 1, 2, :color, "blue") && get_prop(mg, 1, 2, :color) ==  "blue"
+    @test add_vertex!(mg) && add_edge!(mg, 1, 3, Dict(:color => "red", :prop2 => "prop2")) && props(mg, 1, 3) == Dict(:color => "red", :prop2 => "prop2")
 
     for g in testgraphs(gx)
         mg = MetaGraph(g)
         g2 = SimpleGraph(mg)
         @test g2 == mg.graph
 
-        @test eltype(@inferred(MetaGraph{UInt8, Float16}(mg))) == UInt8
-        @test weighttype(@inferred(MetaGraph{UInt8, Float16}(mg))) == Float16
+        @test eltype(@inferred(MetaGraph{UInt8,Float16}(mg))) == UInt8
+        @test weighttype(@inferred(MetaGraph{UInt8,Float16}(mg))) == Float16
 
         @test @inferred(MetaGraphs.fadj(mg, 2)) == LightGraphs.SimpleGraphs.fadj(g, 2)
         @test @inferred(MetaGraphs.badj(mg, 2)) == LightGraphs.SimpleGraphs.badj(g, 2)
@@ -38,22 +38,22 @@ importall MetaGraphs
         @test @inferred(eltype(MetaGraph(g, 2.0))) == eltype(g)
         @test @inferred(eltype(MetaGraph(g, :cost))) == eltype(g)
         @test @inferred(eltype(MetaGraph(g, :cost, 2.0))) == eltype(g)
-        @test @inferred(eltype(MetaGraph{UInt8, Float16}(g))) == UInt8
-        @test @inferred(eltype(MetaGraph{UInt8, Float16}(g, :cost))) == UInt8
-        @test @inferred(eltype(MetaGraph{UInt8, Float16}(g, 4))) == UInt8
+        @test @inferred(eltype(MetaGraph{UInt8,Float16}(g))) == UInt8
+        @test @inferred(eltype(MetaGraph{UInt8,Float16}(g, :cost))) == UInt8
+        @test @inferred(eltype(MetaGraph{UInt8,Float16}(g, 4))) == UInt8
         @test @inferred(ne(mg)) == 3
         @test @inferred(nv(mg)) == 4
         @test @inferred(!is_directed(mg))
 
         @test @inferred(vertices(mg)) == 1:4
-        @test Edge(2,3) in edges(mg)
-        @test @inferred(outneighbors(mg,2)) == inneighbors(mg,2) == neighbors(mg,2)
+        @test Edge(2, 3) in edges(mg)
+        @test @inferred(outneighbors(mg, 2)) == inneighbors(mg, 2) == neighbors(mg, 2)
         @test @inferred(has_edge(mg, 2, 3))
         @test @inferred(has_edge(mg, 3, 2))
 
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, 4=>1)) && mgc == MetaGraph(CycleGraph(4))
-        @test @inferred(has_edge(mgc, 4=>1)) && has_edge(mgc, 0x04=>0x01)
+        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaGraph(CycleGraph(4))
+        @test @inferred(has_edge(mgc, 4 => 1)) && has_edge(mgc, 0x04 => 0x01)
         mgc = copy(mg)
         @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaGraph(CycleGraph(4))
         @test @inferred(has_edge(mgc, (4, 1))) && has_edge(mgc, (0x04, 0x01))
@@ -69,11 +69,11 @@ importall MetaGraphs
         @test @inferred(rem_vertex!(mga, 2)) && ne(mga) == 1
         @test @inferred(!rem_vertex!(mga, 10))
 
-        @test @inferred(zero(mg)) == MetaGraph{eltype(mg), weighttype(mg)}()
+        @test @inferred(zero(mg)) == MetaGraph{eltype(mg),weighttype(mg)}()
         @test @inferred(eltype(mg)) == eltype(outneighbors(mg, 1)) == eltype(nv(mg))
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
-        @test @inferred(nv(MetaGraph{T, U}(6))) == 6
+        @test @inferred(nv(MetaGraph{T,U}(6))) == 6
 
     end
 
@@ -82,8 +82,8 @@ importall MetaGraphs
         g2 = SimpleDiGraph(mg)
         @test g2 == mg.graph
 
-        @test eltype(@inferred(MetaDiGraph{UInt8, Float16}(mg))) == UInt8
-        @test weighttype(@inferred(MetaDiGraph{UInt8, Float16}(mg))) == Float16
+        @test eltype(@inferred(MetaDiGraph{UInt8,Float16}(mg))) == UInt8
+        @test weighttype(@inferred(MetaDiGraph{UInt8,Float16}(mg))) == Float16
 
         @test @inferred(MetaGraphs.fadj(mg, 2)) == LightGraphs.SimpleGraphs.fadj(g, 2)
         @test @inferred(MetaGraphs.badj(mg, 2)) == LightGraphs.SimpleGraphs.badj(g, 2)
@@ -94,24 +94,24 @@ importall MetaGraphs
         @test @inferred(eltype(MetaDiGraph(g, 2.0))) == eltype(g)
         @test @inferred(eltype(MetaDiGraph(g, :cost))) == eltype(g)
         @test @inferred(eltype(MetaDiGraph(g, :cost, 2.0))) == eltype(g)
-        @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g))) == UInt8
-        @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g, :cost))) == UInt8
-        @test @inferred(eltype(MetaDiGraph{UInt8, Float16}(g, 4))) == UInt8
+        @test @inferred(eltype(MetaDiGraph{UInt8,Float16}(g))) == UInt8
+        @test @inferred(eltype(MetaDiGraph{UInt8,Float16}(g, :cost))) == UInt8
+        @test @inferred(eltype(MetaDiGraph{UInt8,Float16}(g, 4))) == UInt8
 
         @test @inferred(ne(mg)) == 3
         @test @inferred(nv(mg)) == 4
         @test @inferred(is_directed(mg))
 
         @test @inferred(vertices(mg)) == 1:4
-        @test Edge(2,3) in edges(mg)
-        @test @inferred(outneighbors(mg,2)) == [3]
-        @test @inferred(inneighbors(mg,2)) == [1]
+        @test Edge(2, 3) in edges(mg)
+        @test @inferred(outneighbors(mg, 2)) == [3]
+        @test @inferred(inneighbors(mg, 2)) == [1]
         @test @inferred(has_edge(mg, 2, 3))
         @test @inferred(!has_edge(mg, 3, 2))
 
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, 4=>1)) && mgc == MetaDiGraph(CycleDiGraph(4))
-        @test @inferred(has_edge(mgc, 4=>1)) && has_edge(mgc, 0x04=>0x01)
+        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaDiGraph(CycleDiGraph(4))
+        @test @inferred(has_edge(mgc, 4 => 1)) && has_edge(mgc, 0x04 => 0x01)
         mgc = copy(mg)
         @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaDiGraph(CycleDiGraph(4))
         @test @inferred(has_edge(mgc, (4, 1))) && has_edge(mgc, (0x04, 0x01))
@@ -127,11 +127,11 @@ importall MetaGraphs
         @test @inferred(rem_vertex!(mga, 2)) && ne(mga) == 1
         @test @inferred(!rem_vertex!(mga, 10))
 
-        @test @inferred(zero(mg)) == MetaDiGraph{eltype(mg), weighttype(mg)}()
+        @test @inferred(zero(mg)) == MetaDiGraph{eltype(mg),weighttype(mg)}()
         @test @inferred(eltype(mg)) == eltype(outneighbors(mg, 1)) == eltype(nv(mg))
         T = @inferred(eltype(mg))
         U = @inferred(weighttype(mg))
-        @test @inferred(nv(MetaDiGraph{T, U}(6))) == 6
+        @test @inferred(nv(MetaDiGraph{T,U}(6))) == 6
     end
 
     for gbig in [SimpleGraph(0xff), SimpleDiGraph(0xff)]
@@ -161,13 +161,13 @@ importall MetaGraphs
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol, Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol, Int64}
+    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
+    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
+    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
+    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
+    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
 
 
     @test length(props(mg)) == 1
@@ -198,13 +198,13 @@ importall MetaGraphs
     mg = MetaDiGraph(PathDiGraph(3), 3.0)
     add_edge!(mg, 1, 3)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol, Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol, Int64}
+    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
+    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol, String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol, Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol, Any}
+    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
+    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
+    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
 
 
     @test length(props(mg)) == 1
@@ -249,10 +249,10 @@ importall MetaGraphs
     @test weightfield!(mg, :weight) == :weight
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test length(set_props!(mg, 1, 2,  Dict(:color=>:blue, :action=>"knows"))) == 3
+    @test length(set_props!(mg, 1, 2,  Dict(:color => :blue, :action => "knows"))) == 3
     @test rem_edge!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
-    @test length(set_props!(mg, Dict(:name=>"testgraph", :type=>"undirected"))) == 2
+    @test length(set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))) == 2
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
@@ -327,6 +327,19 @@ importall MetaGraphs
     @test length(mga.eprops) == 1 # should only be edge 3=>2
     @test props(mga, 3, 2)[:name] == "3, 4"
     
+    # test for #33
+    mga = MetaGraph(PathGraph(4))
+    set_prop!(mga, 1, 2, :name, "1, 2")
+    set_prop!(mga, 2, 3, :name, "2, 3")
+    set_prop!(mga, 3, 4, :name, "3, 4")
+    set_prop!(mga, 3, :v, 3)
+    set_prop!(mga, 4, :v, 4)
+    @test rem_vertex!(mga, nv(mga))
+    @test has_prop(mga, 2, 3, :name)
+    @test !has_prop(mga, 3, 4, :name)
+    @test !has_prop(mga, 4, :v)
+    @test has_prop(mga, 3, :v)
+
 
     
 
@@ -342,8 +355,8 @@ end
     end
 
     for i in 1:100
-        set_prop!(G, i, :not_unique, "$(i%5)")
-        set_prop!(dG, i, :not_unique, "$(i%5)")
+        set_prop!(G, i, :not_unique, "$(i % 5)")
+        set_prop!(dG, i, :not_unique, "$(i % 5)")
     end
 
     @test set_indexing_prop!(G, :name) == Set{Symbol}([:name])
@@ -358,9 +371,10 @@ end
     @test_throws ErrorException set_indexing_prop!(dG, 4, :name, "dgnode_3")
     @test_throws ErrorException set_prop!(G, 3, :name, "name3")
     @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
-    @test_throws ErrorException set_props!(G, 5, Dict(:name=>"name", :other_name=>"something"))
-    @test_throws ErrorException set_props!(dG, 5, Dict(:name=>"name", :other_name=>"something"))
+    @test_throws ErrorException set_props!(G, 5, Dict(:name => "name", :other_name => "something"))
+    @test_throws ErrorException set_props!(dG, 5, Dict(:name => "name", :other_name => "something"))
 
+    info("Ignore \"'foo1' is already in index\" warnings")
     set_indexing_prop!(G, 50, :name, "another name")
     set_indexing_prop!(G, 50, :name, "another name")
 
@@ -376,8 +390,8 @@ end
     @test G[12, :foo] == "foo12"
     @test G["bar", :foo] == 42
     @test G[42, :foo] == "bar"
-    @test isa(G[:foo], Dict{Any, Integer})
-    @test isa(dG[:foo], Dict{Any, Integer})
+    @test isa(G[:foo], Dict{Any,Integer})
+    @test isa(dG[:foo], Dict{Any,Integer})
 
 
     @test dG["foo30", :foo] == 30
