@@ -16,7 +16,8 @@ import LightGraphs:
     has_vertex, has_edge, inneighbors, outneighbors,
     weights, indegree, outdegree, degree,
     induced_subgraph,
-    loadgraph, savegraph, AbstractGraphFormat
+    loadgraph, savegraph, AbstractGraphFormat,
+    reverse
 
 import LightGraphs.SimpleGraphs:
     AbstractSimpleGraph, SimpleGraph, SimpleDiGraph,
@@ -41,7 +42,8 @@ export
     filter_edges,
     filter_vertices,
     MGFormat,
-    set_indexing_prop!
+    set_indexing_prop!,
+    reverse
 
 const PropDict = Dict{Symbol,Any}
 const MetaDict = Dict{Symbol,Dict{Any,Integer}}
@@ -318,7 +320,7 @@ rem_prop!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, prop::Symbol) where T
 
 Provides a default index value for a vertex if no value currently exists. The default is a string: "\$prop\$i" where `prop` is the property name and `i` is the vertex number. If some other vertex already has this name, a randomized string is generated (though the way it is generated is deterministic).
 """
-function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude = nothing)
+function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude=nothing)
     val = string(prop) * string(v)
     if in(val, index_values) || val == exclude
         srand(v + hash(prop))
@@ -337,16 +339,16 @@ are already set, each vertex must have unique values. Optionally, set the index
 `val` for vertex `v`. Any vertices without values will be set to a default
 ("(prop)(v)").
 """
-function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude = nothing)
+function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude=nothing)
     in(prop, g.indices) && return g.indices
     index_values = [g.vprops[v][prop] for v in keys(g.vprops) if haskey(g.vprops[v], prop)]
     length(index_values) != length(union(index_values)) && error("Cannot make $prop an index, duplicate values detected")
     index_values = Set(index_values)
 
     g.metaindex[prop] = Dict{Any,Integer}()
-    for v in 1:size(g)[1]
+    for v in vertices(g)
         if !haskey(g.vprops, v) || !haskey(g.vprops[v], prop)
-            val = default_index_value(v, prop, index_values, exclude = exclude)
+            val = default_index_value(v, prop, index_values, exclude=exclude)
             set_prop!(g, v, prop, val)
         end
         g.metaindex[prop][g.vprops[v][prop]] = v
@@ -356,7 +358,7 @@ function set_indexing_prop!(g::AbstractMetaGraph, prop::Symbol; exclude = nothin
 end
 
 function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
-    !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude = val)
+    !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude=val)
     (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return g.indices
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
 
@@ -508,4 +510,5 @@ copy(g::T) where T <: AbstractMetaGraph = deepcopy(g)
 include("metagraph.jl")
 include("metadigraph.jl")
 include("persistence.jl")
+include("overrides.jl")
 end # module
