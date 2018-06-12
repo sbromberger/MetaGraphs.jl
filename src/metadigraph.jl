@@ -31,17 +31,17 @@ MetaDiGraph(x, weightfield::Symbol) = MetaDiGraph(x, weightfield, 1.0)
 MetaDiGraph(x, defaultweight::Real) = MetaDiGraph(x, :weight, defaultweight)
 
 # converts MetaDiGraph{Int,Float64} to MetaDiGraph{UInt8, Float32}
-function (::Type{MetaDiGraph{T,U}})(g::MetaDiGraph) where T<:Integer where U<:Real
+function MetaDiGraph{T,U}(g::MetaDiGraph) where T<:Integer where U<:Real
     newg = SimpleDiGraph{T}(g.graph)
     return MetaDiGraph(newg, U(g.defaultweight))
 end
 
-function (::Type{MetaDiGraph{T,U}})(g::SimpleDiGraph, weightfield::Symbol=:weight, defaultweight::Real=1.0) where T<:Integer where U<:Real
+function MetaDiGraph{T,U}(g::SimpleDiGraph, weightfield::Symbol=:weight, defaultweight::Real=1.0) where T<:Integer where U<:Real
     newg = SimpleDiGraph{T}(g)
     return MetaDiGraph(newg, weightfield, U(defaultweight))
 end
 
-function (::Type{MetaDiGraph{T,U}})(g::SimpleDiGraph, defaultweight::Real) where T<:Integer where U<:Real
+function MetaDiGraph{T,U}(g::SimpleDiGraph, defaultweight::Real) where T<:Integer where U<:Real
     newg = SimpleDiGraph{T}(g)
     return MetaDiGraph(newg, :weight, U(defaultweight))
 end
