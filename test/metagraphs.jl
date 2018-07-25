@@ -194,6 +194,30 @@ importall MetaGraphs
     clear_props!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
 
+    # metagraph constructor from metadigraph
+    mdg = MetaDiGraph(PathDiGraph(4), 3.0)
+    set_prop!(mdg, 1, 2, :name, 12)
+    set_prop!(mdg, 2, 3, :name, 23)
+    set_prop!(mdg, 3, 4, :name, 34)
+    set_indexing_prop!(mdg, 1, :foo, "v1")
+    set_indexing_prop!(mdg, 2, :foo, "v2")
+    set_indexing_prop!(mdg, 3, :foo, "v3")
+    set_indexing_prop!(mdg, 4, :foo, "v4")
+
+    dg = MetaGraph(mdg)
+    set_prop!(mdg, 1, 2, :name, 99)
+    @test get_prop(mdg, 1, 2, :name) == 99
+    @test get_prop(dg, 1, 2, :name) == 12
+
+    set_indexing_prop!(mdg, 1, :foo, "99")
+    @test get_prop(mdg, 1, :foo) == "99"
+    @test get_prop(dg, 1, :foo) == "v1"
+    add_vertex!(mdg)
+    @test nv(mdg) == nv(dg) + 1
+    add_edge!(mdg, 1, 3)
+    @test !has_edge(dg, 1, 3)
+    defaultweight!(mdg, 11.11)
+    @test defaultweight(dg) == 3.0
 
     mg = MetaDiGraph(PathDiGraph(3), 3.0)
     add_edge!(mg, 1, 3)
