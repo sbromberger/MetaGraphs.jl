@@ -507,8 +507,8 @@ induced_subgraph(g::T, filt::Iterators.Filter) where T <: AbstractMetaGraph =
 
 copy(g::T) where T <: AbstractMetaGraph = deepcopy(g)
 
-include("metagraph.jl")
 include("metadigraph.jl")
+include("metagraph.jl")
 include("persistence.jl")
 include("overrides.jl")
 end # module
