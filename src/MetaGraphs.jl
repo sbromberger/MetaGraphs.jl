@@ -84,7 +84,6 @@ issubset(g::T, h::T) where T <: AbstractMetaGraph = issubset(g.graph, h.graph)
 
     return true if the edge has been added, false otherwise
 """
-
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, s::Symbol, val)
     add_edge!(g, u, v) || return false
@@ -308,7 +307,6 @@ Remove property `prop` from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
 If property, vertex, or edge does not exist, will not do anything.
 """
-
 rem_prop!(g::AbstractMetaGraph, prop::Symbol) = delete!(g.gprops, prop)
 rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v], prop)
 rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
