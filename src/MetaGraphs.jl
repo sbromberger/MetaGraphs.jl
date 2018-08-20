@@ -130,7 +130,7 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     v in vertices(g) || return false
     lastv = nv(g)
     lastvprops = props(g, lastv)
-    
+
     lasteoutprops = Dict(n => props(g, lastv, n) for n in outneighbors(g, lastv))
     lasteinprops = Dict(n => props(g, n, lastv) for n in inneighbors(g, lastv))
     clear_props!(g, v)
@@ -156,7 +156,7 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
         for n in outneighbors(g, v)
             set_props!(g, v, n, lasteoutprops[n])
         end
-        
+
         for n in inneighbors(g, v)
             set_props!(g, n, v, lasteinprops[n])
         end
@@ -360,7 +360,12 @@ function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val:
     (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return g.indices
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
 
-    delete!(g.metaindex[prop], g.vprops[v][prop])
+    if !haskey(g.vprops, v)
+        push!(g.vprops, v=>Dict{Symbol,Any}())
+    end
+    if haskey(g.vprops[v], :prop)
+        delete!(g.metaindex[prop], g.vprops[v][prop])
+    end
     g.metaindex[prop][val] = v
     g.vprops[v][prop] = val
     return g.indices
