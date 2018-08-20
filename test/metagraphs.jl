@@ -350,7 +350,18 @@ importall MetaGraphs
     @test ne(mga) == 1
     @test length(mga.eprops) == 1 # should only be edge 3=>2
     @test props(mga, 3, 2)[:name] == "3, 4"
-    
+
+    # test for #32
+    mga = MetaGraph(PathGraph(4))
+    for j in 1:4
+        set_prop!(mga, j, :prop, "node$j")
+    end
+    set_indexing_prop!(mga, :prop)
+    add_vertex!(mga)
+    set_indexing_prop!(mga, nv(mga), :prop, "node5")
+    @test mga["node5", :prop] == 5
+    @test get_prop(mga, 5, :prop) == "node5"
+
     # test for #33
     mga = MetaGraph(PathGraph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
@@ -365,7 +376,7 @@ importall MetaGraphs
     @test has_prop(mga, 3, :v)
 
 
-    
+
 
 end
 
@@ -444,5 +455,3 @@ end
     @test weightfield(rmg) == weightfield(mga) == :weight
     @test defaultweight(rmg) == defaultweight(mga) == 8
 end
-
-
