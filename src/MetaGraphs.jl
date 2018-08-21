@@ -287,11 +287,12 @@ edge `e` (optionally referenced by source vertex `s` and destination vertex `d`)
 Will return false if vertex or edge does not exist, true otherwise
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
-set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) =
+set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = begin
     if in(prop, g.indices)
-    error("':$prop' is an indexing property, use `set_indexing_prop!()` instead")
-else
-    set_props!(g, v, Dict(prop => val))
+        set_indexing_prop!(g, v, prop, val)
+    else
+        set_props!(g, v, Dict(prop => val))
+    end
 end
 set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
@@ -357,13 +358,13 @@ end
 
 function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
     !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude=val)
-    (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return g.indices
+    (haskey(g.metaindex[prop], val) && haskey(g.vprops, v) && haskey(g.vprops[v], prop) && g.vprops[v][prop] == val) && return g.indices
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
 
     if !haskey(g.vprops, v)
         push!(g.vprops, v=>Dict{Symbol,Any}())
     end
-    if haskey(g.vprops[v], :prop)
+    if haskey(g.vprops[v], prop)
         delete!(g.metaindex[prop], g.vprops[v][prop])
     end
     g.metaindex[prop][val] = v

@@ -375,7 +375,18 @@ importall MetaGraphs
     @test !has_prop(mga, 4, :v)
     @test has_prop(mga, 3, :v)
 
-
+    # test for setting indexed props with set_prop!
+    mga = MetaGraph(PathGraph(4))
+    for j in 1:3
+        set_indexing_prop!(mga, j, :prop, "node$j")
+    end
+    add_vertex!(mga)
+    set_prop!(mga, nv(mga), :prop, "node5")
+    set_prop!(mga, 1, :prop, "newnode1")
+    @test get_prop(mga, 4, :prop) == "prop4"
+    @test mga["node5", :prop] == 5
+    @test get_prop(mga, 5, :prop) == "node5"
+    @test get_prop(mga, 1, :prop) == "newnode1"
 
 
 end
@@ -404,8 +415,8 @@ end
 
     @test_throws ErrorException set_indexing_prop!(G, 4, :name, "gnode_3")
     @test_throws ErrorException set_indexing_prop!(dG, 4, :name, "dgnode_3")
-    @test_throws ErrorException set_prop!(G, 3, :name, "name3")
-    @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
+    @test_throws ErrorException set_prop!(G, 4, :name, "gnode_3")
+    @test_throws ErrorException set_prop!(dG, 4, :name, "dgnode_3")
     @test_throws ErrorException set_props!(G, 5, Dict(:name => "name", :other_name => "something"))
     @test_throws ErrorException set_props!(dG, 5, Dict(:name => "name", :other_name => "something"))
 
