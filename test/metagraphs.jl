@@ -1,4 +1,7 @@
-importall MetaGraphs
+using MetaGraphs
+import LightGraphs: SimpleGraphs
+import Base64:
+        stringmime
 
 
 @testset "MetaGraphs" begin
@@ -146,7 +149,7 @@ importall MetaGraphs
         T = eltype(mg)
         U = weighttype(mg)
         @test sprint(show, mg) == "{0, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
-        @test @inferred(add_vertices!(g, 5)) == 5
+        @test @inferred(add_vertices!(mg, 5)) == 5
         @test sprint(show, mg) == "{5, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
     gx = SimpleDiGraph()
@@ -420,7 +423,7 @@ end
     @test_throws ErrorException set_props!(G, 5, Dict(:name => "name", :other_name => "something"))
     @test_throws ErrorException set_props!(dG, 5, Dict(:name => "name", :other_name => "something"))
 
-    info("Ignore \"'foo1' is already in index\" warnings")
+    @info("Ignore \"'foo1' is already in index\" warnings")
     set_indexing_prop!(G, 50, :name, "another name")
     set_indexing_prop!(G, 50, :name, "another name")
 

@@ -8,6 +8,8 @@ import Base:
     Tuple, copy, length, size,
     start, next, done, issubset,
     zero, getindex
+import Random:
+    randstring, seed!
 
 import LightGraphs:
     AbstractGraph, src, dst, edgetype, nv,
@@ -322,9 +324,9 @@ Provides a default index value for a vertex if no value currently exists. The de
 function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude=nothing)
     val = string(prop) * string(v)
     if in(val, index_values) || val == exclude
-        srand(v + hash(prop))
+        seed!(v + hash(prop))
         val = randstring()
-        warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
+        @warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
     end
     return val
 end
