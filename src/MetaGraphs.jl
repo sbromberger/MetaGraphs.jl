@@ -1,4 +1,3 @@
-__precompile__()
 module MetaGraphs
 using LightGraphs
 using JLD2
