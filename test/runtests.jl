@@ -1,6 +1,6 @@
 using LightGraphs
 using MetaGraphs
-using Base.Test
+using Test
 
 import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
 testdir = dirname(@__FILE__)
