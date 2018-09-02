@@ -5,8 +5,7 @@ using JLD2
 import Base:
     eltype, show, ==, Pair,
     Tuple, copy, length, size,
-    start, next, done, issubset,
-    zero, getindex
+    issubset, zero, getindex
 import Random:
     randstring, seed!
 
