@@ -165,7 +165,7 @@ import Base64:
     mg = MetaGraph(CompleteGraph(3), 3.0)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
     @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
+    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int}
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
@@ -226,7 +226,7 @@ import Base64:
     add_edge!(mg, 1, 3)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
     @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
+    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int}
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
     @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
