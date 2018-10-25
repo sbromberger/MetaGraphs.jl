@@ -258,9 +258,13 @@ has_prop(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = has_prop(
 
 Bulk set (merge) properties contained in `dict` with graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
-Will do nothing if vertex or edge does not exist.
+Will return false if vertex or edge does not exist.
 """
-set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
+function set_props!(g::AbstractMetaGraph, d::Dict)
+    merge!(g.gprops, d)
+    return true
+end
+
 function set_props!(g::AbstractMetaGraph, v::Integer, d::Dict)
     if has_vertex(g, v)
         if length(intersect(keys(d), g.indices)) != 0
@@ -270,7 +274,9 @@ function set_props!(g::AbstractMetaGraph, v::Integer, d::Dict)
         else
             merge!(g.vprops[v], d)
         end
+        return true
     end
+    return false
 end
 # set_props!(g::AbstractMetaGraph, e::SimpleEdge, d::Dict) is dependent on directedness.
 
@@ -284,7 +290,7 @@ set_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, d::Dict) where T = s
 
 Set (replace) property `prop` with value `val` in graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
-Will return false if vertex or edge does not exist, true otherwise
+Will return false if vertex or edge does not exist, true otherwise.
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
 set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = begin

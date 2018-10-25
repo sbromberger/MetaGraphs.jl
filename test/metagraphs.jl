@@ -164,13 +164,18 @@ import Base64:
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int}
+    @test set_prop!(mg, 1, 2, :weight, 0.2)
+    @test !set_prop!(mg, 1000, 2, :weight, 0.2) # nonexistent edge
+    @test set_prop!(mg, 2, 3, :weight, 1)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
+    @test set_prop!(mg, 1, :color, "blue")
+    @test set_prop!(mg, 1, :color, "blue")
+    @test !set_prop!(mg, 1000, :color, "blue") # nonexistent vertex
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, :name, "test graph")
+    @test set_prop!(mg, :name, "test graph")
 
 
     @test length(props(mg)) == 1
@@ -225,13 +230,15 @@ import Base64:
     mg = MetaDiGraph(PathDiGraph(3), 3.0)
     add_edge!(mg, 1, 3)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int}
+    @test set_prop!(mg, 1, 2, :weight, 0.2)
+    @test !set_prop!(mg, 1000, 2, :weight, 0.2) # nonexistent edge
+    @test set_prop!(mg, 2, 3, :weight, 1)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
+    @test set_prop!(mg, 1, :color, "blue")
+    @test !set_prop!(mg, 1000, :color, "blue") # nonexistent vertex
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, :name, "test graph")
 
 
     @test length(props(mg)) == 1
@@ -276,10 +283,12 @@ import Base64:
     @test weightfield!(mg, :weight) == :weight
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test length(set_props!(mg, 1, 2,  Dict(:color => :blue, :action => "knows"))) == 3
+    @test set_props!(mg, 1, 2,  Dict(:color => :blue, :action => "knows"))
+    @test length(props(mg, 1, 2)) == 3
     @test rem_edge!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
-    @test length(set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))) == 2
+    @test set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))
+    @test length(props(mg)) == 2
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
