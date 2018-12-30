@@ -169,6 +169,23 @@ import Base64:
     @test set_prop!(mg, 2, 3, :weight, 1)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
+    # issue #60
+    mg60 = MetaGraph(2)
+    add_edge!(mg60, 1, 2)
+    set_prop!(mg60, 2, 1, :weight, 7.0)
+    @test get_prop(mg60, 1, 2, :weight) == 7.0
+    @test get_prop(mg60, 2, 1, :weight) == 7.0
+    @test weights(mg60)[1, 2] == 7.0
+    @test_broken weights(mg60)[2, 1] == 7.0
+    mdg60 = MetaDiGraph(2)
+    add_edge!(mdg60, 1, 2)
+    add_edge!(mdg60, 2, 1)
+    set_prop!(mdg60, 2, 1, :weight, 7.0)
+    # @test get_prop(mdg60, 1, 2, :weight) == 1.0  # broken? Should it display the defaultweight?
+    @test get_prop(mdg60, 2, 1, :weight) == 7.0
+    @test weights(mdg60)[1, 2] == 1.0
+    @test weights(mdg60)[2, 1] == 7.0
+
     @test set_prop!(mg, 1, :color, "blue")
     @test set_prop!(mg, 1, :color, "blue")
     @test !set_prop!(mg, 1000, :color, "blue") # nonexistent vertex
