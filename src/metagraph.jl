@@ -60,16 +60,17 @@ function props(g::MetaGraph, _e::SimpleEdge)
 end
 
 function set_props!(g::MetaGraph, _e::SimpleEdge, d::Dict)
-    e = LightGraphs.is_ordered(_e) ? _e : reverse(_e)
-    if has_edge(g, e)
+    _e_reverse = reverse(_e)
+    (!has_edge(g, _e) || !has_edge(g, _e_reverse)) && return false
+
+    for e in (_e, _e_reverse)
         if !_hasdict(g, e)
             g.eprops[e] = d
         else
             merge!(g.eprops[e], d)
         end
-        return true
     end
-    return false
+    return true
 end
 
 zero(g::MetaGraph{T,U}) where T where U = MetaGraph{T,U}(SimpleGraph{T}())

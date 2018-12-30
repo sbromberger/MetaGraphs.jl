@@ -176,7 +176,7 @@ import Base64:
     @test get_prop(mg60, 1, 2, :weight) == 7.0
     @test get_prop(mg60, 2, 1, :weight) == 7.0
     @test weights(mg60)[1, 2] == 7.0
-    @test_broken weights(mg60)[2, 1] == 7.0
+    @test weights(mg60)[2, 1] == 7.0
     mdg60 = MetaDiGraph(2)
     add_edge!(mdg60, 1, 2)
     add_edge!(mdg60, 2, 1)
@@ -366,7 +366,7 @@ import Base64:
     @test rem_vertex!(mga, 2)
     @test nv(mga) == 3
     @test ne(mga) == 1
-    @test length(mga.eprops) == 1  # should only be edge 2=>3
+    @test length(mga.eprops) == 2  # edges 2=>3 and 3=>2
     @test props(mga, 2, 3)[:name] == "3, 4"
 
     mga = MetaDiGraph(PathDiGraph(4))
