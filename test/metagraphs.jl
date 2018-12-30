@@ -181,7 +181,6 @@ import Base64:
     add_edge!(mdg60, 1, 2)
     add_edge!(mdg60, 2, 1)
     set_prop!(mdg60, 2, 1, :weight, 7.0)
-    # @test get_prop(mdg60, 1, 2, :weight) == 1.0  # broken? Should it display the defaultweight?
     @test get_prop(mdg60, 2, 1, :weight) == 7.0
     @test weights(mdg60)[1, 2] == 1.0
     @test weights(mdg60)[2, 1] == 7.0
