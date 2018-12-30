@@ -169,14 +169,16 @@ struct MetaWeights{T <: Integer,U <: Real} <: AbstractMatrix{U}
     weightfield::Symbol
     defaultweight::U
     eprops::Dict{SimpleEdge{T},PropDict}
+    directed::Bool
 end
 show(io::IO, x::MetaWeights) = print(io, "metaweights")
 show(io::IO, z::MIME"text/plain", x::MetaWeights) = show(io, x)
 
-MetaWeights(g::AbstractMetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops)
+MetaWeights(g::AbstractMetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops, true)
 
 function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Integer where U <: Real
-    e = Edge(u, v)
+    _e = Edge(u, v)
+    e = !w.directed && !LightGraphs.is_ordered(_e) ? reverse(_e) : _e
     !haskey(w.eprops, e) && return w.defaultweight
     return U(get(w.eprops[e], w.weightfield, w.defaultweight))
 end

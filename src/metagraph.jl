@@ -59,6 +59,8 @@ function props(g::MetaGraph, _e::SimpleEdge)
     get(g.eprops, e, PropDict())
 end
 
+MetaWeights(g::MetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops, false)
+
 function set_props!(g::MetaGraph, _e::SimpleEdge, d::Dict)
     e = LightGraphs.is_ordered(_e) ? _e : reverse(_e)
     if has_edge(g, e)
