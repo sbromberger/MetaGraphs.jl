@@ -174,7 +174,7 @@ end
 show(io::IO, x::MetaWeights) = print(io, "metaweights")
 show(io::IO, z::MIME"text/plain", x::MetaWeights) = show(io, x)
 
-MetaWeights(g::AbstractMetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops, true)
+MetaWeights(g::AbstractMetaGraph) = MetaWeights{eltype(g),eltype(g.defaultweight)}(nv(g), g.weightfield, g.defaultweight, g.eprops, is_directed(g))
 
 function getindex(w::MetaWeights{T,U}, u::Integer, v::Integer)::U where T <: Integer where U <: Real
     _e = Edge(u, v)
