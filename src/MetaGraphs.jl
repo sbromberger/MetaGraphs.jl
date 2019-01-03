@@ -1,4 +1,3 @@
-__precompile__()
 module MetaGraphs
 using LightGraphs
 using JLD2
@@ -6,8 +5,9 @@ using JLD2
 import Base:
     eltype, show, ==, Pair,
     Tuple, copy, length, size,
-    start, next, done, issubset,
-    zero, getindex
+    issubset, zero, getindex
+import Random:
+    randstring, seed!
 
 import LightGraphs:
     AbstractGraph, src, dst, edgetype, nv,
@@ -85,7 +85,6 @@ issubset(g::T, h::T) where T <: AbstractMetaGraph = issubset(g.graph, h.graph)
 
     return true if the edge has been added, false otherwise
 """
-
 @inline add_edge!(g::AbstractMetaGraph, x...) = add_edge!(g.graph, x...)
 function add_edge!(g::AbstractMetaGraph, u::Integer, v::Integer, s::Symbol, val)
     add_edge!(g, u, v) || return false
@@ -132,7 +131,7 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     v in vertices(g) || return false
     lastv = nv(g)
     lastvprops = props(g, lastv)
-    
+
     lasteoutprops = Dict(n => props(g, lastv, n) for n in outneighbors(g, lastv))
     lasteinprops = Dict(n => props(g, n, lastv) for n in inneighbors(g, lastv))
     clear_props!(g, v)
@@ -158,7 +157,7 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
         for n in outneighbors(g, v)
             set_props!(g, v, n, lasteoutprops[n])
         end
-        
+
         for n in inneighbors(g, v)
             set_props!(g, n, v, lasteinprops[n])
         end
@@ -260,9 +259,13 @@ has_prop(g::AbstractMetaGraph, u::Integer, v::Integer, prop::Symbol) = has_prop(
 
 Bulk set (merge) properties contained in `dict` with graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
-Will do nothing if vertex or edge does not exist.
+Will return false if vertex or edge does not exist.
 """
-set_props!(g::AbstractMetaGraph, d::Dict) = merge!(g.gprops, d)
+function set_props!(g::AbstractMetaGraph, d::Dict)
+    merge!(g.gprops, d)
+    return true
+end
+
 function set_props!(g::AbstractMetaGraph, v::Integer, d::Dict)
     if has_vertex(g, v)
         if length(intersect(keys(d), g.indices)) != 0
@@ -272,7 +275,9 @@ function set_props!(g::AbstractMetaGraph, v::Integer, d::Dict)
         else
             merge!(g.vprops[v], d)
         end
+        return true
     end
+    return false
 end
 # set_props!(g::AbstractMetaGraph, e::SimpleEdge, d::Dict) is dependent on directedness.
 
@@ -286,14 +291,15 @@ set_props!(g::AbstractMetaGraph{T}, u::Integer, v::Integer, d::Dict) where T = s
 
 Set (replace) property `prop` with value `val` in graph `g`, vertex `v`, or
 edge `e` (optionally referenced by source vertex `s` and destination vertex `d`).
-Will return false if vertex or edge does not exist, true otherwise
+Will return false if vertex or edge does not exist, true otherwise.
 """
 set_prop!(g::AbstractMetaGraph, prop::Symbol, val) = set_props!(g, Dict(prop => val))
-set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) =
+set_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val) = begin
     if in(prop, g.indices)
-    error("':$prop' is an indexing property, use `set_indexing_prop!()` instead")
-else
-    set_props!(g, v, Dict(prop => val))
+        set_indexing_prop!(g, v, prop, val)
+    else
+        set_props!(g, v, Dict(prop => val))
+    end
 end
 set_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol, val) = set_props!(g, e, Dict(prop => val))
 
@@ -309,7 +315,6 @@ Remove property `prop` from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
 If property, vertex, or edge does not exist, will not do anything.
 """
-
 rem_prop!(g::AbstractMetaGraph, prop::Symbol) = delete!(g.gprops, prop)
 rem_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol) = delete!(g.vprops[v], prop)
 rem_prop!(g::AbstractMetaGraph, e::SimpleEdge, prop::Symbol) = delete!(g.eprops[e], prop)
@@ -324,9 +329,9 @@ Provides a default index value for a vertex if no value currently exists. The de
 function default_index_value(v::Integer, prop::Symbol, index_values::Set{Any}; exclude=nothing)
     val = string(prop) * string(v)
     if in(val, index_values) || val == exclude
-        srand(v + hash(prop))
+        seed!(v + hash(prop))
         val = randstring()
-        warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
+        @warn("'$(string(prop))$v' is already in index, setting ':$prop' for vertex $v to $val")
     end
     return val
 end
@@ -360,10 +365,15 @@ end
 
 function set_indexing_prop!(g::AbstractMetaGraph, v::Integer, prop::Symbol, val::Any)
     !in(prop, g.indices) && set_indexing_prop!(g, prop, exclude=val)
-    (haskey(g.metaindex[prop], val) && g.vprops[v][prop] == val) && return g.indices
+    (haskey(g.metaindex[prop], val) && haskey(g.vprops, v) && haskey(g.vprops[v], prop) && g.vprops[v][prop] == val) && return g.indices
     haskey(g.metaindex[prop], val) && error("':$prop' index already contains $val")
 
-    delete!(g.metaindex[prop], g.vprops[v][prop])
+    if !haskey(g.vprops, v)
+        push!(g.vprops, v=>Dict{Symbol,Any}())
+    end
+    if haskey(g.vprops[v], prop)
+        delete!(g.metaindex[prop], g.vprops[v][prop])
+    end
     g.metaindex[prop][val] = v
     g.vprops[v][prop] = val
     return g.indices
@@ -508,8 +518,8 @@ induced_subgraph(g::T, filt::Iterators.Filter) where T <: AbstractMetaGraph =
 
 copy(g::T) where T <: AbstractMetaGraph = deepcopy(g)
 
-include("metagraph.jl")
 include("metadigraph.jl")
+include("metagraph.jl")
 include("persistence.jl")
 include("overrides.jl")
 end # module

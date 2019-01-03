@@ -1,4 +1,4 @@
-mutable struct MetaGraph{T<:Integer,U<:Real} <: AbstractMetaGraph{T}
+mutable struct MetaGraph{T <: Integer,U <: Real} <: AbstractMetaGraph{T}
     graph::SimpleGraph{T}
     vprops::Dict{T,PropDict}
     eprops::Dict{SimpleEdge{T},PropDict}
@@ -28,21 +28,24 @@ MetaGraph(x, weightfield::Symbol) = MetaGraph(x, weightfield, 1.0)
 MetaGraph(x, defaultweight::Real) = MetaGraph(x, :weight, defaultweight)
 
 # converts MetaGraph{Int, Float64} to MetaGraph{UInt8, Float32}
-function MetaGraph{T,U}(g::MetaGraph) where T<:Integer where U<:Real
+function MetaGraph{T,U}(g::MetaGraph) where T <: Integer where U <: Real
     newg = SimpleGraph{T}(g.graph)
     return MetaGraph(newg, U(g.defaultweight))
 end
 
-function MetaGraph{T,U}(g::SimpleGraph, weightfield::Symbol=:weight, defaultweight::Real=1.0) where T<:Integer where U<:Real
+function MetaGraph{T,U}(g::SimpleGraph, weightfield::Symbol=:weight, defaultweight::Real=1.0) where T <: Integer where U <: Real
     newg = SimpleGraph{T}(g)
     return MetaGraph(newg, weightfield, U(defaultweight))
 end
 
-function MetaGraph{T,U}(g::SimpleGraph, defaultweight::Real) where T<:Integer where U<:Real
+function MetaGraph{T,U}(g::SimpleGraph, defaultweight::Real) where T <: Integer where U <: Real
     newg = SimpleGraph{T}(g)
     return MetaGraph(newg, :weight, U(defaultweight))
 end
 
+function MetaGraph(g::MetaDiGraph{T,U}) where T <: Integer where U <: Real
+    return MetaGraph(Graph(g.graph), deepcopy(g.vprops), deepcopy(g.eprops), deepcopy(g.gprops), g.weightfield, g.defaultweight, deepcopy(g.metaindex), deepcopy(g.indices))
+end
 
 SimpleGraph(g::MetaGraph) = g.graph
 
@@ -64,7 +67,9 @@ function set_props!(g::MetaGraph, _e::SimpleEdge, d::Dict)
         else
             merge!(g.eprops[e], d)
         end
+        return true
     end
+    return false
 end
 
 zero(g::MetaGraph{T,U}) where T where U = MetaGraph{T,U}(SimpleGraph{T}())

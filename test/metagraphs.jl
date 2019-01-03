@@ -1,5 +1,7 @@
 using MetaGraphs
-import MetaGraphs
+import LightGraphs: SimpleGraphs
+import Base64:
+        stringmime
 
 
 @testset "MetaGraphs" begin
@@ -147,7 +149,7 @@ import MetaGraphs
         T = eltype(mg)
         U = weighttype(mg)
         @test sprint(show, mg) == "{0, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
-        @test @inferred(add_vertices!(g, 5)) == 5
+        @test @inferred(add_vertices!(mg, 5)) == 5
         @test sprint(show, mg) == "{5, 0} undirected $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
     gx = SimpleDiGraph()
@@ -162,13 +164,18 @@ import MetaGraphs
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
+    @test set_prop!(mg, 1, 2, :weight, 0.2)
+    @test !set_prop!(mg, 1000, 2, :weight, 0.2) # nonexistent edge
+    @test set_prop!(mg, 2, 3, :weight, 1)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
+    @test set_prop!(mg, 1, :color, "blue")
+    @test set_prop!(mg, 1, :color, "blue")
+    @test !set_prop!(mg, 1000, :color, "blue") # nonexistent vertex
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, :name, "test graph")
+    @test set_prop!(mg, :name, "test graph")
 
 
     @test length(props(mg)) == 1
@@ -195,17 +202,43 @@ import MetaGraphs
     clear_props!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
 
+    # metagraph constructor from metadigraph
+    mdg = MetaDiGraph(PathDiGraph(4), 3.0)
+    set_prop!(mdg, 1, 2, :name, 12)
+    set_prop!(mdg, 2, 3, :name, 23)
+    set_prop!(mdg, 3, 4, :name, 34)
+    set_indexing_prop!(mdg, 1, :foo, "v1")
+    set_indexing_prop!(mdg, 2, :foo, "v2")
+    set_indexing_prop!(mdg, 3, :foo, "v3")
+    set_indexing_prop!(mdg, 4, :foo, "v4")
+
+    dg = MetaGraph(mdg)
+    set_prop!(mdg, 1, 2, :name, 99)
+    @test get_prop(mdg, 1, 2, :name) == 99
+    @test get_prop(dg, 1, 2, :name) == 12
+
+    set_indexing_prop!(mdg, 1, :foo, "99")
+    @test get_prop(mdg, 1, :foo) == "99"
+    @test get_prop(dg, 1, :foo) == "v1"
+    add_vertex!(mdg)
+    @test nv(mdg) == nv(dg) + 1
+    add_edge!(mdg, 1, 3)
+    @test !has_edge(dg, 1, 3)
+    defaultweight!(mdg, 11.11)
+    @test defaultweight(dg) == 3.0
 
     mg = MetaDiGraph(PathDiGraph(3), 3.0)
     add_edge!(mg, 1, 3)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
-    @test typeof(set_prop!(mg, 1, 2, :weight, 0.2)) == Dict{Symbol,Float64}
-    @test typeof(set_prop!(mg, 2, 3, :weight, 1)) == Dict{Symbol,Int64}
+    @test set_prop!(mg, 1, 2, :weight, 0.2)
+    @test !set_prop!(mg, 1000, 2, :weight, 0.2) # nonexistent edge
+    @test set_prop!(mg, 2, 3, :weight, 1)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test typeof(set_prop!(mg, 1, :color, "blue")) == Dict{Symbol,String}
-    @test typeof(set_prop!(mg, 1, :id, 0x5)) == Dict{Symbol,Any}
-    @test typeof(set_prop!(mg, :name, "test graph")) == Dict{Symbol,Any}
+    @test set_prop!(mg, 1, :color, "blue")
+    @test !set_prop!(mg, 1000, :color, "blue") # nonexistent vertex
+    @test set_prop!(mg, 1, :id, 0x5)
+    @test set_prop!(mg, :name, "test graph")
 
 
     @test length(props(mg)) == 1
@@ -250,10 +283,12 @@ import MetaGraphs
     @test weightfield!(mg, :weight) == :weight
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 2, 3]
 
-    @test length(set_props!(mg, 1, 2,  Dict(:color => :blue, :action => "knows"))) == 3
+    @test set_props!(mg, 1, 2,  Dict(:color => :blue, :action => "knows"))
+    @test length(props(mg, 1, 2)) == 3
     @test rem_edge!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
-    @test length(set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))) == 2
+    @test set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))
+    @test length(props(mg)) == 2
 
     mg = MetaGraph(CompleteGraph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
@@ -327,7 +362,18 @@ import MetaGraphs
     @test ne(mga) == 1
     @test length(mga.eprops) == 1 # should only be edge 3=>2
     @test props(mga, 3, 2)[:name] == "3, 4"
-    
+
+    # test for #32
+    mga = MetaGraph(PathGraph(4))
+    for j in 1:4
+        set_prop!(mga, j, :prop, "node$j")
+    end
+    set_indexing_prop!(mga, :prop)
+    add_vertex!(mga)
+    set_indexing_prop!(mga, nv(mga), :prop, "node5")
+    @test mga["node5", :prop] == 5
+    @test get_prop(mga, 5, :prop) == "node5"
+
     # test for #33
     mga = MetaGraph(PathGraph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
@@ -341,8 +387,19 @@ import MetaGraphs
     @test !has_prop(mga, 4, :v)
     @test has_prop(mga, 3, :v)
 
+    # test for setting indexed props with set_prop!
+    mga = MetaGraph(PathGraph(4))
+    for j in 1:3
+        set_indexing_prop!(mga, j, :prop, "node$j")
+    end
+    add_vertex!(mga)
+    set_prop!(mga, nv(mga), :prop, "node5")
+    set_prop!(mga, 1, :prop, "newnode1")
+    @test get_prop(mga, 4, :prop) == "prop4"
+    @test mga["node5", :prop] == 5
+    @test get_prop(mga, 5, :prop) == "node5"
+    @test get_prop(mga, 1, :prop) == "newnode1"
 
-    
 
 end
 
@@ -370,12 +427,12 @@ end
 
     @test_throws ErrorException set_indexing_prop!(G, 4, :name, "gnode_3")
     @test_throws ErrorException set_indexing_prop!(dG, 4, :name, "dgnode_3")
-    @test_throws ErrorException set_prop!(G, 3, :name, "name3")
-    @test_throws ErrorException set_prop!(dG, 3, :name, "name3")
+    @test_throws ErrorException set_prop!(G, 4, :name, "gnode_3")
+    @test_throws ErrorException set_prop!(dG, 4, :name, "dgnode_3")
     @test_throws ErrorException set_props!(G, 5, Dict(:name => "name", :other_name => "something"))
     @test_throws ErrorException set_props!(dG, 5, Dict(:name => "name", :other_name => "something"))
 
-    info("Ignore \"'foo1' is already in index\" warnings")
+    @info("Ignore \"'foo1' is already in index\" warnings")
     set_indexing_prop!(G, 50, :name, "another name")
     set_indexing_prop!(G, 50, :name, "another name")
 
@@ -421,5 +478,3 @@ end
     @test weightfield(rmg) == weightfield(mga) == :weight
     @test defaultweight(rmg) == defaultweight(mga) == 8
 end
-
-

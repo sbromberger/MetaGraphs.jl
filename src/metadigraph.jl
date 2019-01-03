@@ -65,7 +65,9 @@ function set_props!(g::MetaDiGraph, e::SimpleEdge, d::Dict)
         else
             merge!(g.eprops[e], d)
         end
+        return true
     end
+    return false
 end
 
 zero(g::MetaDiGraph{T,U}) where T where U = MetaDiGraph{T,U}(SimpleDiGraph{T}())
