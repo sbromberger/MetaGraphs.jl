@@ -42,6 +42,7 @@ export
     filter_edges,
     filter_vertices,
     MGFormat,
+    DOTFormat,
     set_indexing_prop!,
     reverse
 

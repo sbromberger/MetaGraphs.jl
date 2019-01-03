@@ -1,0 +1,54 @@
+digraph G {
+pack=true;
+1 [ color="orange",style="filled",penwidth="2.0",fillcolor="#dddddd",name="weather",label="NOAA\nWeather",shape="record",];
+2 [ color="orange",style="filled",penwidth="2.0",fillcolor="#dddddd",name="cost",label="Vaccination\nCost",shape="record",];
+3 [ color="orange",style="filled",penwidth="2.0",fillcolor="#dddddd",name="demo",label="Census\nDemographics",shape="record",];
+4 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="fed",label="Fed Forcast",shape="record",];
+5 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="epi",label="SIR",shape="record",];
+6 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="ode",label="ODE Solver",shape="record",];
+7 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="rate",label="{Transition\nRate}",shape="record",];
+8 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="unit",label="Unit",shape="record",];
+9 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="personper",label="Person/s",shape="record",];
+10 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="person",label="Person",shape="record",];
+11 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="second",label="second (s)",shape="record",];
+12 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="dollars",label="$",shape="record",];
+13 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="inf",label="Infection\nRate",shape="record",];
+14 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="mort",label="Mortality\nRate",shape="record",];
+15 [ color="#66AA55",style="filled",penwidth="2.0",fillcolor="#dddddd",name="birth",label="Birth\nRate",shape="record",];
+16 [ color="#DD1133",style="filled",penwidth="2.0",fillcolor="#dddddd",name="twenty",label="0.2 Persons/s",shape="record",];
+17 [ color="#DD1133",style="filled",penwidth="2.0",fillcolor="#dddddd",name="thirty",label="0.3 Persons/s",shape="record",];
+18 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="ind",label="Individual\nContact\nModel",shape="record",];
+19 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="temp",label="Temperature",shape="record",];
+20 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="age",label="Age",shape="record",];
+21 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="dGDP",label="Economic Growth",shape="record",];
+22 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="cases",label="Flu\nCases",shape="record",];
+23 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="prices",label="Vacc\nPrice",shape="record",];
+24 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="regres",label="Regression",shape="record",];
+1 -> 19 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+3 -> 15 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+3 -> 20 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+4 -> 21 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+5 -> 22 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+6 -> 5 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+7 -> 9 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+9 -> 8 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+10 -> 8 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+11 -> 8 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+12 -> 2 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+12 -> 8 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+13 -> 7 [ color=black, dir=none, penwidth=2.0, style=dashed, ]
+13 -> 18 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+14 -> 7 [ color=black, dir=none, penwidth=2.0, style=dashed, ]
+14 -> 18 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+15 -> 7 [ color=black, dir=none, penwidth=2.0, style=dashed, ]
+15 -> 18 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+16 -> 14 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+17 -> 13 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+18 -> 5 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+19 -> 13 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+20 -> 14 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+21 -> 23 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+22 -> 24 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+23 -> 24 [ color=missing, dir=none, penwidth=missing, style=missing, ]
+24 -> 2 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+}

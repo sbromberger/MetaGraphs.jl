@@ -1,6 +1,6 @@
 using LightGraphs
 using MetaGraphs
-using Base.Test
+using Test
 
 import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
 testdir = dirname(@__FILE__)
@@ -10,7 +10,8 @@ testdigraphs(g) = [g, SimpleDiGraph{UInt8}(g), SimpleDiGraph{Int16}(g)]
 
 tests = [
     "metagraphs",
-    "persistence"
+    "persistence",
+    "dotformat"
 ]
 
 @testset "MetaGraphs" begin

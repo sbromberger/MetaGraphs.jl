@@ -1,4 +1,5 @@
-importall MetaGraphs
+using MetaGraphs
+import MetaGraphs
 
 
 @testset "MetaGraphs" begin
