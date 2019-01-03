@@ -11,9 +11,9 @@ Full documentation is available at [GitHub Pages](https://juliagraphs.github.io/
 Documentation for methods is also available via the Julia REPL help system.
 
 ## Installation
-Installation is straightforward:
+Installation is straightforward: from the Julia `pkg` prompt,
 ```julia-repl
-julia> Pkg.add("MetaGraphs")
+add MetaGraphs
 ```
 
 ## Example Usage
