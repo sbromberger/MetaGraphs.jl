@@ -10,7 +10,8 @@ testdigraphs(g) = [g, SimpleDiGraph{UInt8}(g), SimpleDiGraph{Int16}(g)]
 
 tests = [
     "metagraphs",
-    "persistence"
+    "persistence",
+    "dotformat"
 ]
 
 @testset "MetaGraphs" begin
