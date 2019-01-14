@@ -129,6 +129,6 @@ julia> G["node4", :name]
 julia> G[4, :name]
 "node4"
 
-julia> set_prop!(G, 3, :name, "name3")
-ERROR: ':name' is an indexing property, use `set_indexing_prop!()` instead
+julia> set_prop!(G, 3, :name, "name3") # or set_indexing_prop!(G, 3, :name, "name3")
+Set(Symbol[:name])
 ```
