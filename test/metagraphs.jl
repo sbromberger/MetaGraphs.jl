@@ -461,20 +461,3 @@ end
     @test_throws ErrorException dG[:not_a_key]
 end
 
-@testset "Overrides" begin
-    mga = MetaDiGraph(PathDiGraph(4), 8)
-    set_prop!(mga, 1, 2, :name, "1, 2")
-    set_prop!(mga, 2, 3, :name, "2, 3")
-    set_prop!(mga, 3, 4, :name, "3, 4")
-    set_indexing_prop!(mga, 1, :foo, "v1")
-    set_indexing_prop!(mga, 2, :foo, "v2")
-    set_indexing_prop!(mga, 3, :foo, "v3")
-    set_indexing_prop!(mga, 4, :foo, "v4")
-
-    rmg = reverse(mga)
-    @test props(rmg, 1)[:foo] == rmg[1, :foo] == mga[4, :foo] == "v4"
-    @test props(rmg, 2, 1) == props(mga, 1, 2)
-    @test props(rmg, 3, 2) == props(mga, 2, 3)
-    @test weightfield(rmg) == weightfield(mga) == :weight
-    @test defaultweight(rmg) == defaultweight(mga) == 8
-end

@@ -10,6 +10,7 @@ testdigraphs(g) = [g, SimpleDiGraph{UInt8}(g), SimpleDiGraph{Int16}(g)]
 
 tests = [
     "metagraphs",
+    "overrides",
     "persistence",
     "dotformat"
 ]
