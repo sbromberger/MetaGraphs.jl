@@ -28,9 +28,8 @@ git:
 ## uncomment the following lines to override the default test script
 #script:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("MetaGraphs"); Pkg.test("MetaGraphs"; coverage=true)'
+
 after_success:
-  # make documentation
-  - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("MetaGraphs")); include(joinpath("docs", "make.jl"))'
-  # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("MetaGraphs")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; cd(Pkg.dir("MetaGraphs")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps)'
+  - julia -e 'using Pkg; cd(Pkg.dir("MetaGraphs")); include(joinpath("docs", "make.jl"))'
