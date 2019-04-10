@@ -352,10 +352,12 @@ import Base64:
     for v in vertices(mga)
         set_prop!(mga, v, :name, string(v))
     end
+    set_indexing_prop!(mga,:name)
     @test get_prop(mga, 1, :name) == "1"
     @test get_prop(mga, 5, :name) == "5"
     @test rem_vertex!(mga, 1)
     @test get_prop(mga, 1, :name) == "5"
+    @test mga["5",:name] == 1
     @test isempty(props(mga, 5))
 
     # test for #22
@@ -476,4 +478,3 @@ end
     @test_throws ErrorException G[:not_a_key]
     @test_throws ErrorException dG[:not_a_key]
 end
-
