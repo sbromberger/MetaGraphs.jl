@@ -157,12 +157,13 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     clear_props!(g, lastv)
     retval = rem_vertex!(g.graph, v)
     if v != lastv # ignore if we're removing the last vertex.
-        retval || throw(DomainError("vertex could not be removed; graph is in an inconsistent state"))
-        for (key, val) in lastvprops
-            if (key in g.indices)
-                set_indexing_prop!(g, v, key, val)
-            else
-                set_prop!(g, v, key, val)
+        if retval
+            for (key, val) in lastvprops
+                if (key in g.indices)
+                    set_indexing_prop!(g, v, key, val)
+                else
+                    set_prop!(g, v, key, val)
+                end
             end
         end
         for n in outneighbors(g, v)
