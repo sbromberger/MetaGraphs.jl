@@ -135,8 +135,8 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     lasteoutprops = Dict(n => props(g, lastv, n) for n in outneighbors(g, lastv))
     lasteinprops = Dict(n => props(g, n, lastv) for n in inneighbors(g, lastv))
     for ind in g.indices
-        pop!(g.metaindex[ind],get_prop(g,lastv,ind))
-        v != lastv && pop!(g.metaindex[ind],get_prop(g,v,ind))
+        pop!(g.metaindex[ind], get_prop(g, lastv, ind))
+        v != lastv && pop!(g.metaindex[ind], get_prop(g, v, ind))
     end
     clear_props!(g, v)
     for n in outneighbors(g, lastv)
@@ -157,11 +157,11 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     clear_props!(g, lastv)
     retval = rem_vertex!(g.graph, v)
     if v != lastv # ignore if we're removing the last vertex.
-        for (key,val) in lastvprops
+        for (key, val) in lastvprops
             if (key in g.indices)
-                set_indexing_prop!(g,v,key,val)
+                retval && set_indexing_prop!(g, v, key, val)
             else
-                retval && set_prop!(g,v,key,val)
+                retval && set_prop!(g, v, key, val)
             end
         end
         for n in outneighbors(g, v)
