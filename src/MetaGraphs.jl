@@ -135,8 +135,12 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
     lasteoutprops = Dict(n => props(g, lastv, n) for n in outneighbors(g, lastv))
     lasteinprops = Dict(n => props(g, n, lastv) for n in inneighbors(g, lastv))
     for ind in g.indices
-        pop!(g.metaindex[ind], get_prop(g, lastv, ind))
-        v != lastv && pop!(g.metaindex[ind], get_prop(g, v, ind))
+        if haskey(props(g,lastv),ind)
+            pop!(g.metaindex[ind], get_prop(g, lastv, ind))
+        end
+        if haskey(props(g,v),ind)
+            v != lastv && pop!(g.metaindex[ind], get_prop(g, v, ind))
+        end
     end
     clear_props!(g, v)
     for n in outneighbors(g, lastv)

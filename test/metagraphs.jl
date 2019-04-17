@@ -371,6 +371,23 @@ import Base64:
     @test length(mga.eprops) == 1  # should only be edge 2=>3
     @test props(mga, 2, 3)[:name] == "3, 4"
 
+    # test for #72 - Multiple indicies that are not all used
+    let
+        test_graph = x-> begin
+            g=MetaGraph()
+            set_indexing_prop!(g,:IndexA)
+            set_indexing_prop!(g,:IndexB)
+            add_vertex!(g,:IndexA,"A")
+            x && add_vertex!(g,:IndexA,"B")
+            x && set_indexing_prop!(g,nv(g),:IndexB,"B")
+            add_vertex!(g,:IndexB,"C")
+            g
+        end
+        mga=test_graph(true)
+        rem_vertex!(mga,2)
+        @test mga==test_graph(false)
+    end
+
     mga = MetaDiGraph(PathDiGraph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
     set_prop!(mga, 2, 3, :name, "2, 3")
