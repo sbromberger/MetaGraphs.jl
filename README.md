@@ -12,12 +12,12 @@ Documentation for methods is also available via the Julia REPL help system.
 
 ## Installation
 Installation is straightforward: from the Julia `pkg` prompt,
-```julia-repl
+```julia
 add MetaGraphs
 ```
 
 ## Example Usage
-```julia-repl
+```julia
 julia> using LightGraphs, MetaGraphs
 
 # create a standard simplegraph
