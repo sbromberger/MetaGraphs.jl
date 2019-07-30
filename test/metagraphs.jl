@@ -15,8 +15,8 @@ import Base64:
 
     adjmx1 = [0 1 0; 1 0 1; 0 1 0] # SimpleGraph
     adjmx2 = [0 1 0; 1 0 1; 1 1 0] # SimpleDiGraph
-    gx = PathGraph(4)
-    dgx = PathDiGraph(4)
+    gx = path_graph(4)
+    dgx = path_digraph(4)
 
     mg = MetaGraph()
     @test add_vertex!(mg, :color, "red") && get_prop(mg, nv(mg), :color) == "red"
@@ -55,13 +55,13 @@ import Base64:
         @test @inferred(has_edge(mg, 3, 2))
 
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaGraph(CycleGraph(4))
+        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaGraph(cycle_graph(4))
         @test @inferred(has_edge(mgc, 4 => 1)) && has_edge(mgc, 0x04 => 0x01)
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaGraph(CycleGraph(4))
+        @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaGraph(cycle_graph(4))
         @test @inferred(has_edge(mgc, (4, 1))) && has_edge(mgc, (0x04, 0x01))
         mgc = copy(mg)
-        @test add_edge!(mgc, 4, 1) && mgc == MetaGraph(CycleGraph(4))
+        @test add_edge!(mgc, 4, 1) && mgc == MetaGraph(cycle_graph(4))
 
         @test @inferred(add_vertex!(mgc))   # out of order, but we want it for issubset
         @test @inferred(mg ⊆ mgc)
@@ -113,13 +113,13 @@ import Base64:
         @test @inferred(!has_edge(mg, 3, 2))
 
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaDiGraph(CycleDiGraph(4))
+        @test @inferred(add_edge!(mgc, 4 => 1)) && mgc == MetaDiGraph(cycle_digraph(4))
         @test @inferred(has_edge(mgc, 4 => 1)) && has_edge(mgc, 0x04 => 0x01)
         mgc = copy(mg)
-        @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaDiGraph(CycleDiGraph(4))
+        @test @inferred(add_edge!(mgc, (4, 1))) && mgc == MetaDiGraph(cycle_digraph(4))
         @test @inferred(has_edge(mgc, (4, 1))) && has_edge(mgc, (0x04, 0x01))
         mgc = copy(mg)
-        @test add_edge!(mgc, 4, 1) && mgc == MetaDiGraph(CycleDiGraph(4))
+        @test add_edge!(mgc, 4, 1) && mgc == MetaDiGraph(cycle_digraph(4))
 
         @test @inferred(add_vertex!(mgc))   # out of order, but we want it for issubset
         @test @inferred(mg ⊆ mgc)
@@ -162,7 +162,7 @@ import Base64:
         @test sprint(show, mg) == "{5, 0} directed $T metagraph with $U weights defined by :$(mg.weightfield) (default weight $(mg.defaultweight))"
     end
 
-    mg = MetaGraph(CompleteGraph(3), 3.0)
+    mg = MetaGraph(complete_graph(3), 3.0)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
     @test set_prop!(mg, 1, 2, :weight, 0.2)
     @test !set_prop!(mg, 1000, 2, :weight, 0.2) # nonexistent edge
@@ -219,7 +219,7 @@ import Base64:
     @test length(props(mg, 1, 2)) == 0
 
     # metagraph constructor from metadigraph
-    mdg = MetaDiGraph(PathDiGraph(4), 3.0)
+    mdg = MetaDiGraph(path_digraph(4), 3.0)
     set_prop!(mdg, 1, 2, :name, 12)
     set_prop!(mdg, 2, 3, :name, 23)
     set_prop!(mdg, 3, 4, :name, 34)
@@ -243,7 +243,7 @@ import Base64:
     defaultweight!(mdg, 11.11)
     @test defaultweight(dg) == 3.0
 
-    mg = MetaDiGraph(PathDiGraph(3), 3.0)
+    mg = MetaDiGraph(path_digraph(3), 3.0)
     add_edge!(mg, 1, 3)
     @test enumerate_paths(dijkstra_shortest_paths(mg, 1), 3) == [1, 3]
     @test set_prop!(mg, 1, 2, :weight, 0.2)
@@ -287,7 +287,7 @@ import Base64:
     clear_props!(mg, 1, 2)
     @test length(props(mg, 1, 2)) == 0
 
-    mg = MetaGraph(CompleteGraph(3), 3.0)
+    mg = MetaGraph(complete_graph(3), 3.0)
     mw = MetaGraphs.MetaWeights(mg)
     @test mw[1, 2] == 3.0
     @test sprint(show, mw) == stringmime("text/plain", mw) == "metaweights"
@@ -306,7 +306,7 @@ import Base64:
     @test set_props!(mg, Dict(:name => "testgraph", :type => "undirected"))
     @test length(props(mg)) == 2
 
-    mg = MetaGraph(CompleteGraph(3), 3.0)
+    mg = MetaGraph(complete_graph(3), 3.0)
     set_prop!(mg, 1, :color, "blue")
     set_prop!(mg, 1, :id, 40)
     set_prop!(mg, 2, :color, "red")
@@ -361,7 +361,7 @@ import Base64:
     @test isempty(props(mga, 5))
 
     # test for #22
-    mga = MetaGraph(PathGraph(4))
+    mga = MetaGraph(path_graph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
     set_prop!(mga, 2, 3, :name, "2, 3")
     set_prop!(mga, 3, 4, :name, "3, 4")
@@ -388,7 +388,7 @@ import Base64:
         @test mga==test_graph(false)
     end
 
-    mga = MetaDiGraph(PathDiGraph(4))
+    mga = MetaDiGraph(path_digraph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
     set_prop!(mga, 2, 3, :name, "2, 3")
     set_prop!(mga, 3, 4, :name, "3, 4")
@@ -399,7 +399,7 @@ import Base64:
     @test props(mga, 3, 2)[:name] == "3, 4"
 
     # test for #32
-    mga = MetaGraph(PathGraph(4))
+    mga = MetaGraph(path_graph(4))
     for j in 1:4
         set_prop!(mga, j, :prop, "node$j")
     end
@@ -410,7 +410,7 @@ import Base64:
     @test get_prop(mga, 5, :prop) == "node5"
 
     # test for #33
-    mga = MetaGraph(PathGraph(4))
+    mga = MetaGraph(path_graph(4))
     set_prop!(mga, 1, 2, :name, "1, 2")
     set_prop!(mga, 2, 3, :name, "2, 3")
     set_prop!(mga, 3, 4, :name, "3, 4")
@@ -423,7 +423,7 @@ import Base64:
     @test has_prop(mga, 3, :v)
 
     # test for setting indexed props with set_prop!
-    mga = MetaGraph(PathGraph(4))
+    mga = MetaGraph(path_graph(4))
     for j in 1:3
         set_indexing_prop!(mga, j, :prop, "node$j")
     end
