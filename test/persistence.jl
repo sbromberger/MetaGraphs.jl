@@ -2,7 +2,7 @@
     (f, fio) = mktemp()
     close(fio)
 
-    gx = path_graph(5)
+    gx = PathGraph(5)
     for g in testgraphs(gx)
         mg = MetaGraph(g)
         set_prop!(mg, 1, 2, :weight, 0.2)
@@ -16,7 +16,7 @@
         @test mg == g2
     end
 
-    gx = path_digraph(5)
+    gx = PathDiGraph(5)
     for g in testdigraphs(gx)
         mg = MetaDiGraph(g)
         set_prop!(mg, 1, 2, :weight, 0.2)
