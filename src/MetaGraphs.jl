@@ -53,9 +53,18 @@ function push!(meta::MetaGraph, edge, value)
     had_it
 end
 
+function delete_meta!(meta, edge::AbstractEdge)
+    edges = meta.edges
+    fixed_edge = make_edge(meta.graph, edge)
+    if haskey(edges, fixed_edge)
+        delete!(edges, fixed_edge)
+    end
+end
+
 function delete!(meta::MetaGraph, edge::AbstractEdge)
     graph = meta.graph
-    delete!(meta.edges, make_edge(graph, edge))
+    edges = meta.edges
+    delete_meta!(meta, edge)
     rem_edge!(graph, edge)
 end
 
@@ -68,39 +77,52 @@ function push!(meta::MetaGraph, value)
     had_it
 end
 
+function delete_meta!(meta, vertex::Integer)
+    the_vertices = meta.vertices
+    if haskey(the_vertices, vertex)
+        delete!(the_vertices, vertex)
+    end
+end
+
+function move!(meta, old_edge, new_edge)
+    graph = meta.graph
+    edges = meta.edges
+    if haskey(edges, old_edge)
+        edges[make_edge(graph, new_edge)] = pop!(edges, old_edge)
+    end
+end
+
 function delete!(meta::MetaGraph, vertex::Integer)
     graph = meta.graph
     the_vertices = meta.vertices
-    edges = meta.edges
     had_it = vertex in vertices(graph)
     if had_it
         last_vertex = nv(graph)
-        delete!(the_vertices, vertex)
+        delete_meta!(meta, vertex)
         for out_neighbor in outneighbors(graph, vertex)
-            delete!(edges, Edge(vertex, out_neighbor))
+            delete_meta!(meta, Edge(vertex, out_neighbor))
         end
         for in_neighbor in inneighbors(graph, vertex)
-            delete!(edges, Edge(in_neighbor, vertex))
+            delete_meta!(meta, Edge(in_neighbor, vertex))
         end
         if vertex != last_vertex
             # when we remove a vertex, the former last vertex will be reassigned in its place
             # so we need to move the metadata for the last vertex to the new vertex
-            the_vertices[vertex] = pop!(the_vertices, last_vertex)
+            if haskey(the_vertices, last_vertex)
+                the_vertices[vertex] = pop!(the_vertices, last_vertex)
+            end
             for out_neighbor in outneighbors(graph, last_vertex)
-                old_edge = Edge(last_vertex, out_neighbor)
-                if haskey(edges, old_edge)
-                    edges[make_edge(graph, Edge(vertex, out_neighbor))] =
-                        pop!(edges, old_edge)
-                end
+                move!(meta,
+                    Edge(last_vertex, out_neighbor),
+                    Edge(vertex, out_neighbor)
+                )
             end
             for in_neighbor in inneighbors(graph, last_vertex)
-                old_edge = Edge(in_neighbor, last_vertex)
-                if haskey(edges, old_edge)
-                    edges[make_edge(graph, Edge(in_neighbor, vertex))] =
-                        pop!(edges, old_edge)
-                end
+                move!(meta,
+                    Edge(in_neighbor, last_vertex),
+                    Edge(in_neighbor, vertex)
+                )
             end
-
         end
         rem_vertex!(graph, vertex)
     end
@@ -115,15 +137,18 @@ function induced_subgraph(old_meta::MetaGraph, vertices)
     new_vertices = empty(old_vertices)
     new_edges = empty(old_edges)
     for (new_vertex, old_vertex) in enumerate(vertex_map)
-        new_vertices[new_vertex] = old_vertices[old_vertex]
+        if haskey(old_vertices, old_vertex)
+            new_vertices[new_vertex] = old_vertices[old_vertex]
+        end
     end
     for new_edge in edges(new_graph)
-        new_edges[new_edge] = old_edges[
-            make_edge(old_graph, SimpleEdge(
-                vertex_map[new_edge.src],
-                vertex_map[new_edge.dst]
-            ))
-        ]
+        old_edge = make_edge(old_graph, SimpleEdge(
+            vertex_map[new_edge.src],
+            vertex_map[new_edge.dst]
+        ))
+        if haskey(old_edges, old_edge)
+            new_edges[new_edge] = old_edges[old_edge]
+        end
     end
     MetaGraph(new_graph, vertices = new_vertices, edges = new_edges)
 end
