@@ -4,16 +4,16 @@ using LightGraphs: DiGraph, Edge, Graph, induced_subgraph, nv, path_digraph, pat
 
 @testset "MetaGraphs" begin
     meta = meta_graph(Graph(), AtVertex = String, AtEdge = String)
-    meta[new_vertex] = "1"
+    push!(meta, "1")
     @test meta[1] == "1"
-    @test find!(meta, "1") == 1
-    @test find!(meta, "2") == 2
+    @test push!(meta, "1") == 1
+    @test push!(meta, "2") == 2
     @test meta[2] == "2"
     meta[Edge(1, 2)] = "1-2"
     @test meta[Edge(1, 2)] == "1-2"
     delete!(meta, Edge(1, 2))
     @test_throws KeyError meta[Edge(1, 2)]
-    meta[new_vertex] = "3"
+    push!(meta, "3")
     meta[Edge(1, 3)] = "1-3"
     test = induced_subgraph(meta, [1, 3])
     @test test[1] == "1"
@@ -27,9 +27,9 @@ using LightGraphs: DiGraph, Edge, Graph, induced_subgraph, nv, path_digraph, pat
     @test meta[1] == "1"
 
     directed = meta_graph(DiGraph(), AtVertex = String, AtEdge = String)
-    directed[new_vertex] = "1"
+    push!(directed, "1")
     @test directed[1] == "1"
-    directed[new_vertex] = "2"
+    push!(directed, "2")
     @test directed[2] == "2"
     directed[Edge(1, 2)] = "1-2"
     reversed = reverse(directed)

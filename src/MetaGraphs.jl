@@ -1,12 +1,8 @@
 module MetaGraphs
 
-import Base: getindex, delete!, haskey, reverse, setindex!
+import Base: getindex, delete!, haskey, push!, reverse, setindex!
 import LightGraphs: induced_subgraph, vertices
 using LightGraphs: AbstractEdge, AbstractGraph, add_edge!, add_vertex!, Edge, edges, inneighbors, is_directed, is_ordered, nv, outneighbors, rem_edge!, rem_vertex!
-
-struct NewVertex end
-const new_vertex = NewVertex()
-export new_vertex
 
 struct MetaGraph{Vertex, Graph, AtVertex, AtEdge}
     graph::Graph
@@ -79,12 +75,7 @@ function haskey(meta::MetaGraph, vertex::Integer)
     haskey(meta.vertex_meta, vertex)
 end
 
-function setindex!(meta::MetaGraph, value, ::NewVertex)
-    graph = meta.graph
-    add_vertex!(graph)
-    meta[nv(meta.graph)] = value
-    nothing
-end
+
 
 function setindex!(meta::MetaGraph, value, vertex::Integer)
     meta.vertex_meta[vertex] = value
@@ -196,15 +187,17 @@ function reverse(meta::MetaGraph)
     )
 end
 
-function find!(dependencies::MetaGraph, value)
+function push!(dependencies::MetaGraph, value)
+    graph = dependencies.graph
     maybe = findfirst(isequal(value), dependencies.vertex_meta)
     if maybe === nothing
+        add_vertex!(graph)
+        new_vertex = nv(graph)
         dependencies[new_vertex] = value
-        nv(dependencies.graph)
+        new_vertex
     else
         maybe
     end
 end
-export find!
 
 end # module
