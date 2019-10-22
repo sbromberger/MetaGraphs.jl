@@ -1,30 +1,36 @@
 module MetaGraphs
 
-import Base: push!, delete!, reverse
-import LightGraphs: induced_subgraph
-using LightGraphs: AbstractEdge, AbstractGraph, add_edge!, add_vertex!, edges, inneighbors, is_directed, is_ordered, nv, outneighbors, rem_edge!, rem_vertex!, SimpleEdge, vertices
+import Base: getindex, delete!, haskey, reverse, setindex!
+import LightGraphs: induced_subgraph, vertices
+using LightGraphs: AbstractEdge, AbstractGraph, add_edge!, add_vertex!, Edge, edges, inneighbors, is_directed, is_ordered, nv, outneighbors, rem_edge!, rem_vertex!
 
-export MetaGraph, meta_graph
+struct NewVertex end
+const new_vertex = NewVertex()
+export new_vertex
 
 struct MetaGraph{Vertex, Graph, AtVertex, AtEdge}
     graph::Graph
     vertex_meta::Dict{Vertex, AtVertex}
-    edge_meta::Dict{SimpleEdge{Vertex}, AtEdge}
+    edge_meta::Dict{Edge{Vertex}, AtEdge}
 end
 
 function MetaGraph(graph::AbstractGraph{Vertex};
     vertex_meta::Dict{Vertex, AtVertex} = Dict{Vertex, Nothing}(),
-    edge_meta::Dict{SimpleEdge{Vertex}, AtEdge} = Dict{SimpleEdge{Vertex}, Nothing}()
+    edge_meta::Dict{Edge{Vertex}, AtEdge} = Dict{Edge{Vertex}, Nothing}()
 ) where {Vertex, AtVertex, AtEdge}
     MetaGraph{Vertex, typeof(graph), AtVertex, AtEdge}(graph, vertex_meta, edge_meta)
 end
 
+vertices(meta::MetaGraph) = vertices(meta.graph)
+
 function meta_graph(graph::AbstractGraph{Vertex}; AtVertex = Nothing, AtEdge = Nothing) where {Vertex}
     MetaGraph(graph,
         vertex_meta = Dict{Vertex, AtVertex}(),
-        edge_meta = Dict{SimpleEdge{Vertex}, AtEdge}()
+        edge_meta = Dict{Edge{Vertex}, AtEdge}()
     )
 end
+
+export meta_graph
 
 function make_edge(graph, edge)
     if is_directed(graph)
@@ -38,42 +44,51 @@ function make_edge(graph, edge)
     end
 end
 
-"""
-    push!(meta::MetaGraph, value)
-    push!(meta::MetaGraph, edge, value)
+function haskey(meta::MetaGraph, edge::AbstractEdge)
+    haskey(meta.edge_meta, edge)
+end
 
-    Add a vertex or an `edge` with metadata `value`. Return true if added, false
-    otherwise
-"""
-function push!(meta::MetaGraph, edge, value)
+function getindex(meta::MetaGraph, edge::AbstractEdge)
+    meta.edge_meta[edge]
+end
+
+function setindex!(meta::MetaGraph, value, edge::AbstractEdge)
     had_it = add_edge!(meta.graph, edge)
-    if had_it
-        meta.edge_meta[make_edge(meta.graph, edge)] = value
-    end
-    had_it
+    meta.edge_meta[make_edge(meta.graph, edge)] = value
+    nothing
 end
 
 function delete_meta!(meta, edge::AbstractEdge)
     edge_meta = meta.edge_meta
     fixed_edge = make_edge(meta.graph, edge)
-    if haskey(edge_meta, fixed_edge)
-        delete!(edge_meta, fixed_edge)
-    end
+    delete!(edge_meta, fixed_edge)
+    nothing
 end
 
 function delete!(meta::MetaGraph, edge::AbstractEdge)
-    graph = meta.graph
     delete_meta!(meta, edge)
-    rem_edge!(graph, edge)
+    rem_edge!(meta.graph, edge)
+    nothing
 end
 
-function push!(meta::MetaGraph, value)
+function getindex(meta::MetaGraph, vertex::Integer)
+    meta.vertex_meta[vertex]
+end
+
+function haskey(meta::MetaGraph, vertex::Integer)
+    haskey(meta.vertex_meta, vertex)
+end
+
+function setindex!(meta::MetaGraph, value, ::NewVertex)
     graph = meta.graph
-    had_it = add_vertex!(graph)
-    if had_it
-        meta.vertex_meta[nv(graph)] = value
-    end
-    had_it
+    add_vertex!(graph)
+    meta[nv(meta.graph)] = value
+    nothing
+end
+
+function setindex!(meta::MetaGraph, value, vertex::Integer)
+    meta.vertex_meta[vertex] = value
+    nothing
 end
 
 function delete_meta!(meta, vertex::Integer)
@@ -83,11 +98,12 @@ function delete_meta!(meta, vertex::Integer)
         delete!(vertex_meta, vertex)
     end
     for out_neighbor in outneighbors(graph, vertex)
-        delete_meta!(meta, SimpleEdge(vertex, out_neighbor))
+        delete_meta!(meta, Edge(vertex, out_neighbor))
     end
     for in_neighbor in inneighbors(graph, vertex)
-        delete_meta!(meta, SimpleEdge(in_neighbor, vertex))
+        delete_meta!(meta, Edge(in_neighbor, vertex))
     end
+    nothing
 end
 
 function move_meta!(meta, old_edge::AbstractEdge, new_edge::AbstractEdge)
@@ -107,14 +123,14 @@ function move_meta!(meta, old_vertex::Integer, new_vertex::Integer)
     end
     for out_neighbor in outneighbors(graph, old_vertex)
         move_meta!(meta,
-            SimpleEdge(old_vertex, out_neighbor),
-            SimpleEdge(new_vertex, out_neighbor)
+            Edge(old_vertex, out_neighbor),
+            Edge(new_vertex, out_neighbor)
         )
     end
     for in_neighbor in inneighbors(graph, old_vertex)
         move_meta!(meta,
-            SimpleEdge(in_neighbor, old_vertex),
-            SimpleEdge(in_neighbor, new_vertex)
+            Edge(in_neighbor, old_vertex),
+            Edge(in_neighbor, new_vertex)
         )
     end
     nothing
@@ -123,8 +139,7 @@ end
 function delete!(meta::MetaGraph, vertex::Integer)
     graph = meta.graph
     vertex_meta = meta.vertex_meta
-    had_it = vertex in vertices(graph)
-    if had_it
+    if vertex in vertices(graph)
         last_vertex = nv(graph)
         delete_meta!(meta, vertex)
         if vertex != last_vertex
@@ -132,7 +147,7 @@ function delete!(meta::MetaGraph, vertex::Integer)
         end
         rem_vertex!(graph, vertex)
     end
-    had_it
+    nothing
 end
 
 function copy_meta!(old_meta, new_meta, vertex_map)
@@ -146,7 +161,7 @@ function copy_meta!(old_meta, new_meta, vertex_map)
         end
     end
     for new_edge in edges(new_meta.graph)
-        old_edge = make_edge(old_meta.graph, SimpleEdge(
+        old_edge = make_edge(old_meta.graph, Edge(
             vertex_map[new_edge.src],
             vertex_map[new_edge.dst]
         ))
@@ -157,9 +172,9 @@ function copy_meta!(old_meta, new_meta, vertex_map)
     nothing
 end
 
-function induced_subgraph(old_meta::MetaGraph, vertex_meta)
+function induced_subgraph(old_meta::MetaGraph, vertices)
     old_graph = old_meta.graph
-    new_graph, vertex_map = induced_subgraph(old_graph, vertex_meta)
+    new_graph, vertex_map = induced_subgraph(old_graph, vertices)
     new_meta =
         MetaGraph(new_graph,
             vertex_meta = empty(old_meta.vertex_meta),
@@ -180,5 +195,16 @@ function reverse(meta::MetaGraph)
         edge_meta = Dict(reverse_edge(graph, pair) for pair in meta.edge_meta)
     )
 end
+
+function find!(dependencies::MetaGraph, value)
+    maybe = findfirst(isequal(value), dependencies.vertex_meta)
+    if maybe === nothing
+        dependencies[new_vertex] = value
+        nv(dependencies.graph)
+    else
+        maybe
+    end
+end
+export find!
 
 end # module
