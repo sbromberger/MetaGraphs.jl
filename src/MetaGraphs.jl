@@ -1,8 +1,8 @@
 module MetaGraphs
 
 import Base: getindex, delete!, haskey, push!, reverse, setindex!
-import LightGraphs: induced_subgraph, vertices
-using LightGraphs: AbstractEdge, AbstractGraph, add_edge!, add_vertex!, Edge, edges, inneighbors, is_directed, is_ordered, nv, outneighbors, rem_edge!, rem_vertex!
+import LightGraphs: induced_subgraph
+using LightGraphs: AbstractEdge, AbstractGraph, add_edge!, add_vertex!, Edge, edges, inneighbors, is_directed, is_ordered, nv, outneighbors, rem_edge!, rem_vertex!, vertices
 
 struct MetaGraph{Vertex, Graph, AtVertex, AtEdge}
     graph::Graph
@@ -17,9 +17,71 @@ function MetaGraph(graph::AbstractGraph{Vertex};
     MetaGraph{Vertex, typeof(graph), AtVertex, AtEdge}(graph, vertex_meta, edge_meta)
 end
 
-vertices(meta::MetaGraph) = vertices(meta.graph)
+"""
+    meta_graph(graph::AbstractGraph{Vertex}; AtVertex, AtEdge)
 
-function meta_graph(graph::AbstractGraph{Vertex}; AtVertex = Nothing, AtEdge = Nothing) where {Vertex}
+Construct a new meta graph, where `AtVertex` is the type of the meta data at a
+vertex, and `AtEdge` is the type of the meta data at an edge.
+
+```jldoctest example
+julia> using MetaGraphs
+
+julia> using LightGraphs: Edge, Graph
+
+julia> colors = meta_graph(Graph(), AtVertex = Symbol, AtEdge = Symbol);
+```
+
+Use `push!` to add a new vertex with metadata. `push!` will return the vertex
+number of the new vertex.
+
+```jldoctest example
+julia> push!(colors, :red)
+1
+
+julia> push!(colors, :blue)
+2
+
+julia> push!(colors, :yellow)
+3
+```
+
+If a vertex already exists with the meta data, `push!` will instead just return
+the old vertex number.
+
+```jldoctest example
+julia> push!(colors, :red)
+1
+```
+
+You can access and change the metadata at the vertex using indexing:
+
+```jldoctest example
+julia> colors[1] = :scarlet
+
+julia> colors[1]
+:scarlet
+```
+
+Add a new edge with meta data.
+
+```jldoctest example
+julia> orange = Edge(push!(colors, :scarlet), push!(colors, :yellow));
+
+julia> colors[orange] = :orange;
+
+julia> colors[orange]
+:orange
+```
+
+You can delete vertices and edges with `delete!`
+
+```jldoctext example
+julia> delete!(colors, orange)
+
+julia> delete!(colors, 1)
+```
+"""
+function meta_graph(graph::AbstractGraph{Vertex}; AtVertex, AtEdge) where {Vertex}
     MetaGraph(graph,
         vertex_meta = Dict{Vertex, AtVertex}(),
         edge_meta = Dict{Edge{Vertex}, AtEdge}()
@@ -74,8 +136,6 @@ end
 function haskey(meta::MetaGraph, vertex::Integer)
     haskey(meta.vertex_meta, vertex)
 end
-
-
 
 function setindex!(meta::MetaGraph, value, vertex::Integer)
     meta.vertex_meta[vertex] = value
@@ -163,9 +223,9 @@ function copy_meta!(old_meta, new_meta, vertex_map)
     nothing
 end
 
-function induced_subgraph(old_meta::MetaGraph, vertices)
+function induced_subgraph(old_meta::MetaGraph, selected)
     old_graph = old_meta.graph
-    new_graph, vertex_map = induced_subgraph(old_graph, vertices)
+    new_graph, vertex_map = induced_subgraph(old_graph, selected)
     new_meta =
         MetaGraph(new_graph,
             vertex_meta = empty(old_meta.vertex_meta),
@@ -187,13 +247,13 @@ function reverse(meta::MetaGraph)
     )
 end
 
-function push!(dependencies::MetaGraph, value)
-    graph = dependencies.graph
-    maybe = findfirst(isequal(value), dependencies.vertex_meta)
+function push!(meta::MetaGraph, value)
+    graph = meta.graph
+    maybe = findfirst(isequal(value), meta.vertex_meta)
     if maybe === nothing
         add_vertex!(graph)
         new_vertex = nv(graph)
-        dependencies[new_vertex] = value
+        meta[new_vertex] = value
         new_vertex
     else
         maybe
