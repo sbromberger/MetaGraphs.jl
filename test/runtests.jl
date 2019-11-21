@@ -3,12 +3,13 @@ using MetaGraphs
 using Test
 
 import LightGraphs.SimpleGraphs: SimpleGraph, SimpleDiGraph
-testdir = dirname(@__FILE__)
+
+const testdir = @__DIR__
 
 testgraphs(g) = [g, SimpleGraph{UInt8}(g), SimpleGraph{Int16}(g)]
 testdigraphs(g) = [g, SimpleDiGraph{UInt8}(g), SimpleDiGraph{Int16}(g)]
 
-tests = [
+const tests = [
     "metagraphs",
     "overrides",
     "persistence",
