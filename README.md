@@ -21,7 +21,7 @@ add MetaGraphs
 julia> using LightGraphs, MetaGraphs
 
 # create a standard simplegraph
-julia> g = PathGraph(5)
+julia> g = path_graph(5)
 {5, 4} undirected simple Int64 graph
 
 # create a metagraph based on the simplegraph, with optional default edgeweight
@@ -35,19 +35,17 @@ Dict{Symbol,Any} with 1 entry:
 
 # set properties on a vertex in bulk
 julia> set_props!(mg, 1, Dict(:name=>"Susan", :id => 123))
-Dict{Symbol,Any} with 2 entries:
-  :id   => 123
-  :name => "Susan"
+true
 
 # set individual properties
 julia> set_prop!(mg, 2, :name, "John")
-Dict{Symbol,String} with 1 entry:
-  :name => "John"
+true
 
 # set a property on an edge
 julia> set_prop!(mg, Edge(1, 2), :action, "knows")
-Dict{Symbol,String} with 1 entry:
-  :action => "knows"
+true
+
+julia> using Dates: Date
 
 # set another property on an edge by specifying source and destination
 julia> set_prop!(mg, 1, 2, :since, Date("20170501", "yyyymmdd"))
@@ -88,7 +86,7 @@ julia> betweenness_centrality(mg)
  0.0
 
 # using weights
-julia> mg = MetaGraph(CompleteGraph(3))
+julia> mg = MetaGraph(complete_graph(3))
 {3, 3} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 1.0)
 
 julia> enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
@@ -97,12 +95,10 @@ julia> enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
  3
 
 julia> set_prop!(mg, 1, 2, :weight, 0.2)
-Dict{Symbol,Float64} with 1 entry:
-  :weight => 0.2
+true
 
 julia> set_prop!(mg, 2, 3, :weight, 0.6)
-Dict{Symbol,Float64} with 1 entry:
-  :weight => 0.6
+true
 
 julia> enumerate_paths(dijkstra_shortest_paths(mg, 1), 3)
 3-element Array{Int64,1}:

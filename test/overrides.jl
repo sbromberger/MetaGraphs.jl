@@ -1,5 +1,5 @@
 @testset "Overrides" begin
-    g=MetaDiGraph(StarDiGraph(4), 8)
+    g=MetaDiGraph(star_digraph(4), 8)
 
     set_indexing_prop!(g,:nodelabel)
     foreach(v->set_indexing_prop!(g,v,:nodelabel,"Vertex $v"),vertices(g))
