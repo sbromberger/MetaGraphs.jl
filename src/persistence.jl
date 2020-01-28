@@ -16,8 +16,11 @@ end
 loadgraph(fn::AbstractString, gname::String, ::MGFormat) = loadmg(fn)
 savegraph(fn::AbstractString, g::AbstractMetaGraph) =  savemg(fn, g)
 
-function savedot(io::IO, g::MetaDiGraph)
-    write(io, "digraph G {\n")
+function savedot(io::IO, g::AbstractMetaGraph)
+
+    isa(g, MetaDiGraph) ? write(io, "digraph G {\n") :
+                          write(io, "graph G {\n")
+
     for p in props(g)
         write(io, "$(p[1])=$(p[2]);\n")
     end
@@ -38,7 +41,8 @@ function savedot(io::IO, g::MetaDiGraph)
     end
 
     for e in edges(g)
-        write(io, "$(src(e)) -> $(dst(e)) [ ")
+        isa(g, MetaDiGraph) ? write(io, "$(src(e)) -> $(dst(e)) [ ") :
+                              write(io, "$(src(e)) -- $(dst(e)) [ ")
         for p in props(g,e)
             write(io, "$(p[1])=$(p[2]), ")
         end
@@ -48,7 +52,7 @@ function savedot(io::IO, g::MetaDiGraph)
 end
 
 function savegraph(fn::AbstractString, g::AbstractMetaGraph, ::DOTFormat)
-    open(fn, "w") do fp 
+    open(fn, "w") do fp
         savedot(fp, g)
     end
 end
