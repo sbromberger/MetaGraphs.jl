@@ -18,8 +18,8 @@ savegraph(fn::AbstractString, g::AbstractMetaGraph) =  savemg(fn, g)
 
 function savedot(io::IO, g::AbstractMetaGraph)
 
-    isa(g, MetaDiGraph) ? write(io, "digraph G {\n") :
-                          write(io, "graph G {\n")
+    is_directed(g) ? write(io, "digraph G {\n") :
+                     write(io, "graph G {\n")
 
     for p in props(g)
         write(io, "$(p[1])=$(p[2]);\n")
@@ -41,8 +41,8 @@ function savedot(io::IO, g::AbstractMetaGraph)
     end
 
     for e in edges(g)
-        isa(g, MetaDiGraph) ? write(io, "$(src(e)) -> $(dst(e)) [ ") :
-                              write(io, "$(src(e)) -- $(dst(e)) [ ")
+        is_directed(g) ? write(io, "$(src(e)) -> $(dst(e)) [ ") :
+                         write(io, "$(src(e)) -- $(dst(e)) [ ")
         for p in props(g,e)
             write(io, "$(p[1])=$(p[2]), ")
         end
