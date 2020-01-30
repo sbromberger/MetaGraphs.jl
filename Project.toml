@@ -1,6 +1,6 @@
 name = "MetaGraphs"
 uuid = "626554b9-1ddb-594c-aa3c-2596fe9399a5"
-version = "0.6.4"
+version = "0.6.5"
 
 [deps]
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
