@@ -8,4 +8,4 @@ instantiate()
 using Documenter: deploydocs, makedocs
 
 makedocs(sitename = "MetaGraphs.jl", modules = [MetaGraphs], doctest = false)
-deploydocs(repo = "github.com/JuliaGraphs/MetaGraphs.jl.git")
+deploydocs(repo = "github.com/JuliaGraphs/MetaGraphs.jl.git", push_preview = true)
