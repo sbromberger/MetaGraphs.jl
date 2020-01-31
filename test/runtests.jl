@@ -39,10 +39,19 @@ end
     @test issubset(test2, test)
 end
 
+test2 = copy(test)
+
 @testset "Double check deletion" begin
     delete!(test, rock)
     @test ne(test) == 1
     @test filter_edges(test, isequal(:scissors_beats_paper)) == [Edge(2, 1)]
+    delete!(test2, scissors)
+    @test ne(test2) == 1
+    @test filter_edges(test2, isequal(:paper_beats_rock)) == [Edge(2, 1)]
+    rem_edge!(test, Edge(2, 1))
+    @test ne(test) == 0
+    rem_vertex!(test, 2)
+    @test nv(test) == 1
 end
 
 test = meta_graph(DiGraph(), AtVertex = Symbol, AtEdge = Float64, weight_function = identity)
