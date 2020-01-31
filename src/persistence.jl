@@ -1,8 +1,9 @@
 # Metagraphs files are simply JLD2 files.
-"""
-    struct NativeFormat <: AbstractGraphFormat end
 
-You can save `MetaGraph`s in a `NativeFormat`, currently based on JLD2.
+"""
+    struct MGFormat <: AbstractGraphFormat end
+
+You can save `MetaGraph`s in a `MGFormat`, currently based on `JLD2`.
 
 ```jldoctest
 julia> using MetaGraphs
@@ -17,18 +18,18 @@ julia> colors[Edge(red, blue)] = :purple; colors[Edge(blue, yellow)] = :green; c
 
 julia> mktemp() do file, io
             savegraph(file, colors)
-            loadgraph(file, "something", NativeFormat()) == colors
+            loadgraph(file, "something", MGFormat()) == colors
         end
 true
 ```
 """
-struct NativeFormat <: AbstractGraphFormat end
-export NativeFormat
+struct MGFormat <: AbstractGraphFormat end
+export MGFormat
 
 """
     struct DOTFormat <: AbstractGraphFormat end
 
-For supported meta data formats (e.g. AbstractDict, NamedTuple, Nothing), you
+For supported metadata formats (edge.meta. AbstractDict, NamedTuple, Nothing), you
 can save `MetaGraph`s in `DOTFormat`.
 
 ```jldoctest DotFormat
@@ -51,19 +52,17 @@ digraph {
     2 [name = \"b\"]
     1 -> 2 [name = \"ab\"]
 }
-```
 
-You can optionally specify graph-level metadata using the keyword `properties`.
-
-```jldoctest DotFormat
-julia> test2 = meta_graph(Graph(), AtEdge = Dict{Symbol, String});
+julia> test2 = meta_graph(Graph(), AtEdge = Dict{Symbol, String},
+            graph_meta = (sugar = true, spice = true, everything_nice = true)
+        );
 
 julia> a = push!(test2, nothing); b = push!(test2, nothing);
 
 julia> test2[Edge(a, b)] = Dict(:name => "ab");
 
 julia> mktemp() do file, io
-            savegraph(file, test2, DOTFormat(), properties = (sugar = true, spice = true, everything_nice = true))
+            savegraph(file, test2, DOTFormat(), )
             print(read(file, String))
         end
 graph {
@@ -79,7 +78,7 @@ graph {
 struct DOTFormat <: AbstractGraphFormat end
 export DOTFormat
 
-function loadgraph(filename::AbstractString, ::String, ::NativeFormat)
+function loadgraph(filename::AbstractString, ::String, ::MGFormat)
     @load filename meta
     return meta
 end
@@ -88,12 +87,12 @@ function savegraph(filename::AbstractString, meta::MetaGraph)
     return 1
 end
 
-inner_dot_meta(io::IO, properties::Nothing) = nothing
-function inner_dot_meta(io::IO, properties::Union{AbstractDict, NamedTuple})
-    if !isempty(properties)
+show_meta_list(io::IO, meta::Nothing) = nothing
+function show_meta_list(io::IO, meta::Union{AbstractDict, NamedTuple})
+    if !isempty(meta)
         print(io, " [")
         first_one = true
-        for (key, value) in pairs(properties)
+        for (key, value) in pairs(meta)
             if first_one
                 first_one = false
             else
@@ -103,61 +102,59 @@ function inner_dot_meta(io::IO, properties::Union{AbstractDict, NamedTuple})
             print(io, " = ")
             show(io, value)
         end
-        print(io, "]")
-        nothing
+        print(io, ']')
     end
+    return nothing
 end
 
-outer_dot_meta(io::IO, properties::Nothing) = nothing
-function outer_dot_meta(io::IO, properties::Union{AbstractDict, NamedTuple})
-    for (key, value) in pairs(properties)
+show_meta(io::IO, meta::Nothing) = nothing
+function show_meta(io::IO, meta::Union{AbstractDict, NamedTuple})
+    for (key, value) in pairs(meta)
         print(io, "    ")
         print(io, key)
         print(io, " = ")
         show(io, value)
         print(io, '\n')
     end
-    nothing
+    return nothing
 end
 
-function savedot(io::IO, meta::MetaGraph, properties)
-    inner_graph = meta.inner_graph
-    vertex_meta = meta.vertex_meta
-    edge_meta = meta.edge_meta
-
-    dash =
-        if is_directed(inner_graph)
-            write(io, "digraph {\n")
-            "->"
-        else
-            write(io, "graph {\n")
-            "--"
-        end
-
-    outer_dot_meta(io, properties)
-
-    for vertex in vertices(inner_graph)
-        write(io, "    ")
-        show(io, vertex)
-        inner_dot_meta(io, vertex_meta[vertex])
-        write(io, '\n')
+function savedot(io::IO, meta::MetaGraph)
+    dash = if is_directed(meta)
+        print(io, "digraph {\n")
+        "->"
+    else
+        print(io, "graph {\n")
+        "--"
     end
 
-    for edge in edges(inner_graph)
-        write(io, "    ")
-        show(io, edge.src)
-        write(io, ' ')
-        write(io, dash)
-        write(io, ' ')
-        show(io, edge.dst)
-        inner_dot_meta(io, edge_meta[edge])
-        write(io, '\n')
+    show_meta(io, meta.graph_meta)
+
+    for vertex in vertices(meta)
+        print(io, "    ")
+        show(io, vertex)
+        show_meta_list(io, meta[vertex])
+        print(io, '\n')
+    end
+
+    for edge in edges(meta)
+        print(io, "    ")
+        in_vertex, out_vertex = Tuple(edge)
+        print(io, in_vertex)
+        print(io, ' ')
+        print(io, dash)
+        print(io, ' ')
+        show(io, out_vertex)
+        show_meta_list(io, meta[edge])
+        print(io, '\n')
     end
     write(io, "}\n")
+    return nothing
 end
 
-function savegraph(filename::AbstractString, meta::MetaGraph, ::DOTFormat; properties = nothing)
+function savegraph(filename::AbstractString, meta::MetaGraph, ::DOTFormat)
     open(filename, "w") do io
-        savedot(io, meta, properties)
+        savedot(io, meta)
     end
+    return nothing
 end
