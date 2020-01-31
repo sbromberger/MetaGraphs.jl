@@ -53,13 +53,13 @@ digraph {
     1 -> 2 [name = \"ab\"]
 }
 
-julia> test2 = meta_graph(Graph(), AtEdge = Dict{Symbol, String},
+julia> test2 = meta_graph(Graph(), AtEdge = Dict{Symbol, Any},
             graph_meta = (sugar = true, spice = true, everything_nice = true)
         );
 
 julia> a = push!(test2, nothing); b = push!(test2, nothing);
 
-julia> test2[Edge(a, b)] = Dict(:name => "ab");
+julia> test2[Edge(a, b)] = Dict(:name => "ab", :in_order => true);
 
 julia> mktemp() do file, io
             savegraph(file, test2, DOTFormat(), )
@@ -71,7 +71,7 @@ graph {
     everything_nice = true
     1
     2
-    1 -- 2 [name = \"ab\"]
+    1 -- 2 [name = "ab", in_order = true]
 }
 ```
 """

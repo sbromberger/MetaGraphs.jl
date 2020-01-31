@@ -71,7 +71,7 @@ julia> delete!(colors, 3)
 ```
 
 !!! warning "Vertex number reassignment"
-    Deleting a vertex might result in MetaGraphs reassigning a vertex number. If 
+    Deleting a vertex might result in MetaGraphs reassigning a vertex number. If
     so, `delete!` will return a pair showing the reassignment.
 
 ```jldoctest example
@@ -124,13 +124,9 @@ is_directed(::Type{<: MetaGraph{<: Any, InnerGraph}}) where {InnerGraph} =
 weight_type(meta::MetaGraph{<: Any, <: Any, <: Any, <: Any, <: Any, <: Any, Weight}) where {Weight} =
     Weight
 
-add_edge!(meta::MetaGraph, arguments...) =
-    add_edge!(meta.inner_graph, arguments...)
-
 function setindex!(meta::MetaGraph, value, edge::AbstractEdge)
-    add_edge!(meta, edge)
     meta.edge_meta[maybe_order_edge(meta, edge)] = value
-    return nothing
+    add_edge!(meta, edge)
 end
 
 zero(meta::MetaGraph{<:Any, InnerGraph, AtVertex, AtEdge, GraphMeta}) where {InnerGraph, AtVertex, AtEdge, GraphMeta} =

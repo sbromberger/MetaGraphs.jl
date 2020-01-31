@@ -74,10 +74,16 @@ outneighbors(meta::MetaGraph, vertex::Integer) = fadj(meta.inner_graph, vertex)
 issubset(meta::MetaGraph, meta2::MetaGraph) =
     issubset(meta.inner_graph, meta2.inner_graph)
 
+# TODO: not order edges more than once
+
+@inline add_edge!(meta::MetaGraph, arguments...) =
+    add_edge!(meta.inner_graph, arguments...)
+
 @inline function delete!(meta::MetaGraph, edge::Edge)
     delete!(meta.edge_meta, maybe_order_edge(meta, edge))
-    return nothing
+    rem_edge!(meta.inner_graph, edge)
 end
+@inline rem_edge!(meta::MetaGraph, edge::Edge) = delete!(meta, edge)
 
 add_vertex!(meta::MetaGraph) = add_vertex!(meta.inner_graph)
 function push!(meta::MetaGraph, value)
@@ -87,39 +93,50 @@ function push!(meta::MetaGraph, value)
     return last_vertex
 end
 
-function move_meta!(meta::MetaGraph, vertex::Integer, last_vertex::Integer)
-    if haskey(meta, vertex)
-        meta[last_vertex] = pop!(meta.vertex_meta, vertex)
-    end
-    for neighbor in outneighbors(meta, vertex)
-        move_meta!(meta, Edge(vertex, neighbor), Edge(last_vertex, neighbor))
-    end
-    for neighbor in inneighbors(meta, vertex)
-        move_meta!(meta, Edge(neighbor, vertex), Edge(neighbor, last_vertex))
-    end
-    return nothing
-end
-
 function move_meta!(meta, old_edge::AbstractEdge, new_edge::AbstractEdge)
-    if haskey(meta, old_edge)
-        meta[maybe_order_edge(meta, new_edge)] = pop!(meta.edge_meta, old_edge)
-    end
+    meta[maybe_order_edge(meta, new_edge)] =
+        pop!(meta.edge_meta, maybe_order_edge(meta, old_edge))
     return nothing
 end
 
-rem_vertex!(meta::MetaGraph, vertex) =
-    rem_vertex!(meta.inner_graph, vertex)
-
-function delete!(meta::MetaGraph, vertex::Integer)
-    last_vertex = nv(meta)
-    if vertex != last_vertex
-        move_meta!(meta, last_vertex, vertex)
-        return last_vertex => vertex
-    else
-        rem_vertex!(meta, vertex)
-        return nothing
+function delete!(meta::MetaGraph, deleted_vertex::Integer)
+    moved_vertex = nv(meta)
+    # delete meta data for the old vertex
+    delete!(meta.vertex_meta, deleted_vertex)
+    for out_neighbor in outneighbors(meta, deleted_vertex)
+        delete!(meta, Edge(deleted_vertex, out_neighbor))
     end
+    for in_neighbor in inneighbors(meta, deleted_vertex)
+        delete!(meta, Edge(in_neighbor, deleted_vertex))
+    end
+    result =
+        if deleted_vertex != moved_vertex
+            # last vertex will move to the deleted vertex
+            # move its meta data head of time
+            if haskey(meta, moved_vertex)
+                meta[deleted_vertex] = pop!(meta.vertex_meta, moved_vertex)
+            end
+            for out_neighbor in outneighbors(meta, moved_vertex)
+                move_meta!(meta,
+                    Edge(moved_vertex, out_neighbor),
+                    Edge(deleted_vertex, out_neighbor)
+                )
+            end
+            for in_neighbor in inneighbors(meta, moved_vertex)
+                move_meta!(meta,
+                    Edge(in_neighbor, moved_vertex),
+                    Edge(in_neighbor, deleted_vertex)
+                )
+            end
+            moved_vertex => deleted_vertex
+        else
+            nothing
+        end
+    rem_vertex!(meta.inner_graph, deleted_vertex)
+    return result
 end
+
+rem_vertex!(meta::MetaGraph, vertex) = delete!(meta, vertex)
 
 struct MetaWeights{Weight <: Real, InnerMetaGraph} <: AbstractMatrix{Weight}
     inner_meta_graph::InnerMetaGraph

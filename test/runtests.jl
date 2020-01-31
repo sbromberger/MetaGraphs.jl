@@ -6,14 +6,23 @@ import Test: @testset, @test
 
 doctest(MetaGraphs)
 
-test = meta_graph(DiGraph(), AtVertex = Symbol)
+test = meta_graph(DiGraph(), AtVertex = Symbol, AtEdge = Symbol)
 rock = push!(test, :rock)
 scissors = push!(test, :scissors)
 paper = push!(test, :paper)
 
-test[Edge(rock, scissors)] = nothing
-test[Edge(scissors, paper)] = nothing
-test[Edge(paper, rock)] = nothing
+test[Edge(rock, scissors)] = :rock_beats_scissors
+test[Edge(scissors, paper)] = :scissors_beats_paper
+test[Edge(paper, rock)] = :paper_beats_rock
+
+test2 = induced_subgraph(test, [1, 2])
+
+@testset "Miscellaneous" begin
+    @test haskey(reverse(test), Edge(scissors, rock))
+    @test nv(test2) == 2
+    @test ne(test2) == 1
+    @test haskey(test2, Edge(rock, scissors))
+end
 
 @testset "Inheritance" begin
     @test copy(test) == test
@@ -25,13 +34,28 @@ test[Edge(paper, rock)] = nothing
     @test edgetype(test) == Edge{Int}
     @test vertices(test) == Base.OneTo(3)
     @test weight_type(test) == Float64
+    @test has_edge(test, Edge(rock, scissors))
+    @test has_vertex(test, rock)
+    @test issubset(test2, test)
 end
 
-test2 = induced_subgraph(test, [1, 2])
+@testset "Double check deletion" begin
+    delete!(test, rock)
+    @test ne(test) == 1
+    @test filter_edges(test, isequal(:scissors_beats_paper)) == [Edge(2, 1)]
+end
 
-@testset "Miscellaneous" begin
-    @test haskey(reverse(test), Edge(scissors, rock))
-    @test nv(test2) == 2
-    @test ne(test2) == 1
-    @test haskey(test2, Edge(rock, scissors))
+test = meta_graph(DiGraph(), AtVertex = Symbol, AtEdge = Float64, weight_function = identity)
+rock = push!(test, :rock)
+scissors = push!(test, :scissors)
+paper = push!(test, :paper)
+
+test[Edge(rock, scissors)] = 1
+test[Edge(scissors, paper)] = 2
+w = weights(test)
+
+@testset "Weights" begin
+    @test string(w) == "metaweights"
+    @test w[rock, paper] == 1.0
+    @test size(w) == (3, 3)
 end
