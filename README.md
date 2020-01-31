@@ -13,6 +13,4 @@ Documentation for methods is also available via the Julia REPL help system.
 ## Compatibility
 We have recently made a large, breaking change to `MetaGraphs`. The metadata at
 vertices and edges is now type stable (although you can still attach
-type-unstable data by setting `AtEdge` or `AtVertex` to `Any`). You can no
-longer apply several functions (such as `nv` and `ne`) to `MetaGraph`s directly;
-instead, apply them to `metagraph.inner_graph`.
+type-unstable data by setting `AtEdge` or `AtVertex` to `Any`).
