@@ -3,7 +3,7 @@
 """
     struct MGFormat <: AbstractGraphFormat end
 
-You can save `MetaGraph`s in a `MGFormat`, currently based on `JLD2`.
+You can save `AbstractMetaGraph`s in a `MGFormat`, currently based on `JLD2`.
 
 ```jldoctest
 julia> using MetaGraphs
@@ -30,7 +30,7 @@ export MGFormat
     struct DOTFormat <: AbstractGraphFormat end
 
 For supported metadata formats (edge.meta. AbstractDict, NamedTuple, Nothing), you
-can save `MetaGraph`s in `DOTFormat`.
+can save `AbstractMetaGraph`s in `DOTFormat`.
 
 ```jldoctest DotFormat
 julia> using MetaGraphs
@@ -82,7 +82,7 @@ function loadgraph(filename::AbstractString, ::String, ::MGFormat)
     @load filename meta
     return meta
 end
-function savegraph(filename::AbstractString, meta::MetaGraph)
+function savegraph(filename::AbstractString, meta::AbstractMetaGraph)
     @save filename meta
     return 1
 end
@@ -119,7 +119,7 @@ function show_meta(io::IO, meta::Union{AbstractDict, NamedTuple})
     return nothing
 end
 
-function savedot(io::IO, meta::MetaGraph)
+function savedot(io::IO, meta::AbstractMetaGraph)
     dash = if is_directed(meta)
         print(io, "digraph {\n")
         "->"
@@ -152,7 +152,7 @@ function savedot(io::IO, meta::MetaGraph)
     return nothing
 end
 
-function savegraph(filename::AbstractString, meta::MetaGraph, ::DOTFormat)
+function savegraph(filename::AbstractString, meta::AbstractMetaGraph, ::DOTFormat)
     open(filename, "w") do io
         savedot(io, meta)
     end

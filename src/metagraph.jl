@@ -1,4 +1,4 @@
-struct MetaGraph{Vertex <: Integer, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight <: Real} <: AbstractGraph{Vertex}
+struct MetaGraph{Vertex <: Integer, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight <: Real} <: AbstractMetaGraph{Vertex, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight}
     inner_graph::InnerGraph
     vertex_meta::Dict{Vertex, AtVertex}
     edge_meta::Dict{Edge{Vertex}, AtEdge}
@@ -118,22 +118,13 @@ function meta_graph(inner_graph::AbstractGraph{Vertex};
     )
 end
 
-is_directed(::Type{<: MetaGraph{<: Any, InnerGraph}}) where {InnerGraph} =
-    is_directed(InnerGraph)
+SimpleGraph(g::MetaGraph) = g.graph
 
-weight_type(meta::MetaGraph{<: Any, <: Any, <: Any, <: Any, <: Any, <: Any, Weight}) where {Weight} =
-    Weight
+is_directed(::Type{<: MetaGraph}) = false
 
-function setindex!(meta::MetaGraph, value, edge::AbstractEdge)
-    meta.edge_meta[maybe_order_edge(meta, edge)] = value
-    add_edge!(meta, edge)
-end
-
-zero(meta::MetaGraph{<:Any, InnerGraph, AtVertex, AtEdge, GraphMeta}) where {InnerGraph, AtVertex, AtEdge, GraphMeta} =
-    meta_graph(InnerGraph();
-        AtVertex = AtVertex,
-        AtEdge = AtEdge,
-        graph_meta = GraphMeta(),
-        weight_function = meta.weight_function,
-        default_weight = meta.default_weight
-    )
+maybe_order_edge(::MetaGraph, edge) =
+    if is_ordered(edge)
+        edge
+    else
+        reverse(edge)
+    end

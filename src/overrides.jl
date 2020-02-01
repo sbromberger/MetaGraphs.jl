@@ -1,4 +1,4 @@
-function reverse(meta::MetaGraph{<: Any, <: DiGraph})
+function reverse(meta::MetaDiGraph)
     return MetaGraph(reverse(meta.inner_graph),
         meta.vertex_meta,
         Dict(reverse(edge) => value for (edge, value) in meta.edge_meta),
