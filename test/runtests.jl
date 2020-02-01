@@ -37,6 +37,7 @@ end
     @test has_edge(test, Edge(rock, scissors))
     @test has_vertex(test, rock)
     @test issubset(test2, test)
+    @test SimpleDiGraph(test) isa SimpleDiGraph
 end
 
 test2 = copy(test)
@@ -68,3 +69,6 @@ w = weights(test)
     @test w[rock, paper] == 1.0
     @test size(w) == (3, 3)
 end
+
+test = meta_graph(Graph())
+@test SimpleGraph(test) isa SimpleGraph

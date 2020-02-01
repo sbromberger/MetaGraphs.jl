@@ -142,9 +142,6 @@ show(io::IO, ::MIME"text/plain", weights::MetaWeights) = show(io, weights)
 
 MetaWeights(meta::AbstractMetaGraph) = MetaWeights{weight_type(meta), typeof(meta)}(meta)
 
-is_directed(::Type{<: MetaWeights{<: Any, InnerMetaGraph}}) where {InnerMetaGraph} =
-    is_directed(InnerMetaGraph)
-
 function getindex(weights::MetaWeights{Weight}, in_vertex::Integer, out_vertex::Integer)::Weight where {Weight}
     edge = Edge(in_vertex, out_vertex)
     inner_meta_graph = weights.inner_meta_graph

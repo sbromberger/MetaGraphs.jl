@@ -118,7 +118,7 @@ function meta_graph(inner_graph::AbstractGraph{Vertex};
     )
 end
 
-SimpleGraph(g::MetaGraph) = g.graph
+SimpleGraph(g::MetaGraph) = g.inner_graph
 
 is_directed(::Type{<: MetaGraph}) = false
 

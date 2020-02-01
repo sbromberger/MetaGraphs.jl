@@ -24,7 +24,7 @@ function meta_graph(inner_graph::DiGraph{Vertex};
     )
 end
 
-SimpleDiGraph(g::MetaDiGraph) = g.graph
+SimpleDiGraph(g::MetaDiGraph) = g.inner_graph
 
 is_directed(::Type{<: MetaDiGraph}) = true
 
