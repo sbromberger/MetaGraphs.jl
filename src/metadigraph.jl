@@ -1,4 +1,4 @@
-struct MetaDiGraph{Vertex <: Integer, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight <: Real} <: AbstractMetaGraph{Vertex, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight}
+struct MetaDiGraph{Vertex, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight} <: AbstractMetaGraph{Vertex, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight}
     inner_graph::InnerGraph
     vertex_meta::Dict{Vertex, AtVertex}
     edge_meta::Dict{Edge{Vertex}, AtEdge}

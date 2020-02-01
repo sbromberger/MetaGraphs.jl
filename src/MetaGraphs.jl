@@ -35,8 +35,7 @@ export
     DOTFormat,
     reverse
 
-
-abstract type AbstractMetaGraph{Vertex, InnerGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight} <: AbstractGraph{Vertex} end
+abstract type AbstractMetaGraph{Vertex <: Integer, InnerGraph <: AbstractGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight <: Real} <: AbstractGraph{Vertex} end
 
 function show(io::IO, meta::AbstractMetaGraph{<: Any, <: Any, AtVertex, AtEdge, GraphMeta, <: Any, Weight}) where {AtVertex, AtEdge, GraphMeta, Weight}
     print(io, "Meta graph based on a $(meta.inner_graph) with $AtVertex(s) at vertices, $AtEdge(s) at edges, $GraphMeta metadata, $Weight weights, and default weight $(meta.default_weight)")
@@ -83,7 +82,7 @@ end
 
 add_vertex!(meta::AbstractMetaGraph) = add_vertex!(meta.inner_graph)
 function push!(meta::AbstractMetaGraph, value)
-    add_vertex!(meta) || return false
+    add_vertex!(meta)
     last_vertex = nv(meta)
     meta[last_vertex] = value
     return last_vertex
@@ -130,7 +129,6 @@ function delete!(meta::AbstractMetaGraph, deleted_vertex::Integer)
     rem_vertex!(meta.inner_graph, deleted_vertex)
     return result
 end
-
 rem_vertex!(meta::AbstractMetaGraph, vertex) = delete!(meta, vertex)
 
 struct MetaWeights{Weight <: Real, InnerAbstractMetaGraph} <: AbstractMatrix{Weight}
@@ -140,7 +138,8 @@ end
 show(io::IO, weights::MetaWeights) = print(io, "metaweights")
 show(io::IO, ::MIME"text/plain", weights::MetaWeights) = show(io, weights)
 
-MetaWeights(meta::AbstractMetaGraph) = MetaWeights{weight_type(meta), typeof(meta)}(meta)
+MetaWeights(meta::AbstractMetaGraph) =
+    MetaWeights{weight_type(meta), typeof(meta)}(meta)
 
 function getindex(weights::MetaWeights{Weight}, in_vertex::Integer, out_vertex::Integer)::Weight where {Weight}
     edge = Edge(in_vertex, out_vertex)
@@ -165,8 +164,10 @@ weight_type(meta::AbstractMetaGraph{<: Any, <: Any, <: Any, <: Any, <: Any, <: A
 getindex(meta::AbstractMetaGraph, vertex::Integer) = meta.vertex_meta[vertex]
 getindex(meta::AbstractMetaGraph, edge::AbstractEdge) = meta.edge_meta[edge]
 
-haskey(meta::AbstractMetaGraph, vertex::Integer) = haskey(meta.vertex_meta, vertex)
-haskey(meta::AbstractMetaGraph, edge::AbstractEdge) = haskey(meta.edge_meta, edge)
+haskey(meta::AbstractMetaGraph, vertex::Integer) =
+    haskey(meta.vertex_meta, vertex)
+haskey(meta::AbstractMetaGraph, edge::AbstractEdge) =
+    haskey(meta.edge_meta, edge)
 
 function setindex!(meta::AbstractMetaGraph, value, vertex::Integer)
     meta.vertex_meta[vertex] = value
@@ -176,7 +177,7 @@ end
 """
     weight_function(meta)
 
-Return the  weight function for meta graph `meta`.
+Return the  weight function for metagraph `meta`.
 
 ```jldoctest
 julia> using MetaGraphs
@@ -192,7 +193,7 @@ weight_function(meta::AbstractMetaGraph) = meta.weight_function
 """
     default_weight(meta)
 
-Return the default weight for meta graph `meta`.
+Return the default weight for metagraph `meta`.
 
 ```jldoctest
 julia> using MetaGraphs

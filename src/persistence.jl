@@ -20,7 +20,6 @@ true
 ```
 """
 struct MGFormat <: AbstractGraphFormat end
-export MGFormat
 
 """
     struct DOTFormat <: AbstractGraphFormat end
@@ -56,7 +55,6 @@ digraph {
 ```
 """
 struct DOTFormat <: AbstractGraphFormat end
-export DOTFormat
 
 function loadgraph(filename::AbstractString, ::String, ::MGFormat)
     @load filename meta
