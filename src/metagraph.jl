@@ -37,20 +37,20 @@ metadata with multiple vertices.
 julia> push!(colors, :red)
 1
 
-julia> push!(colors, :blue)
+julia> push!(colors, :yellow)
 2
 
-julia> push!(colors, :yellow)
+julia> push!(colors, :blew)
 3
 ```
 
 You can access and change the metadata at a vertex using indexing:
 
 ```jldoctest example
-julia> colors[1] = :scarlet;
+julia> colors[3] = :blue;
 
-julia> colors[1]
-:scarlet
+julia> colors[3]
+:blue
 ```
 
 You can access and change the metadata at an edge using indexing:
@@ -78,7 +78,7 @@ julia> delete!(colors, 3)
 julia> delete!(colors, 1)
 2 => 1
 
-julia> filter_vertices(colors, isequal(:blue))
+julia> filter_vertices(colors, isequal(:yellow))
 1-element Array{Int64,1}:
  1
 ```

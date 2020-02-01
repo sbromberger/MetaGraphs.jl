@@ -10,15 +10,11 @@ julia> using MetaGraphs
 
 julia> using LightGraphs: Edge, Graph,  loadgraph, savegraph
 
-julia> colors = meta_graph(Graph(), AtVertex = Symbol, AtEdge = Symbol);
-
-julia> red = push!(colors, :red); blue = push!(colors, :blue); yellow = push!(colors, :yellow);
-
-julia> colors[Edge(red, blue)] = :purple; colors[Edge(blue, yellow)] = :green; colors[Edge(yellow, red)] = :orange;
+julia> test_graph = meta_graph(Graph());
 
 julia> mktemp() do file, io
-            savegraph(file, colors)
-            loadgraph(file, "something", MGFormat()) == colors
+            savegraph(file, test_graph)
+            loadgraph(file, "something", MGFormat()) == test_graph
         end
 true
 ```
@@ -35,43 +31,27 @@ can save `AbstractMetaGraph`s in `DOTFormat`.
 ```jldoctest DotFormat
 julia> using MetaGraphs
 
-julia> using LightGraphs: Edge, DiGraph, Graph, savegraph, loadgraph
+julia> using LightGraphs
 
-julia> test1 = meta_graph(DiGraph(), AtVertex = Dict{Symbol, String}, AtEdge = Dict{Symbol, String});
+julia> test_graph = meta_graph(DiGraph(),
+            AtVertex = Dict{Symbol, String},
+            AtEdge = Dict{Symbol, String},
+            graph_meta = (tagged = true,)
+        );
 
-julia> a = push!(test1, Dict(:name => "a")); b = push!(test1, Dict(:name => "b"));
+julia> a = push!(test_graph, Dict(:name => "a")); b = push!(test_graph, Dict(:name => "b"));
 
-julia> test1[Edge(a, b)] = Dict(:name => "ab");
+julia> test_graph[Edge(a, b)] = Dict(:name => "ab");
 
 julia> mktemp() do file, io
-            savegraph(file, test1, DOTFormat())
+            savegraph(file, test_graph, DOTFormat())
             print(read(file, String))
         end
 digraph {
-    1 [name = \"a\"]
-    2 [name = \"b\"]
-    1 -> 2 [name = \"ab\"]
-}
-
-julia> test2 = meta_graph(Graph(), AtEdge = Dict{Symbol, Any},
-            graph_meta = (sugar = true, spice = true, everything_nice = true)
-        );
-
-julia> a = push!(test2, nothing); b = push!(test2, nothing);
-
-julia> test2[Edge(a, b)] = Dict(:name => "ab", :in_order => true);
-
-julia> mktemp() do file, io
-            savegraph(file, test2, DOTFormat(), )
-            print(read(file, String))
-        end
-graph {
-    sugar = true
-    spice = true
-    everything_nice = true
-    1
-    2
-    1 -- 2 [name = "ab", in_order = true]
+    tagged = true
+    1 [name = "a"]
+    2 [name = "b"]
+    1 -> 2 [name = "ab"]
 }
 ```
 """
@@ -87,9 +67,8 @@ function savegraph(filename::AbstractString, meta::AbstractMetaGraph)
     return 1
 end
 
-show_meta_list(io::IO, meta::Nothing) = nothing
-function show_meta_list(io::IO, meta::Union{AbstractDict, NamedTuple})
-    if !isempty(meta)
+function show_meta_list(io::IO, meta)
+    if meta !== nothing && !isempty(meta)
         print(io, " [")
         first_one = true
         for (key, value) in pairs(meta)
@@ -107,18 +86,6 @@ function show_meta_list(io::IO, meta::Union{AbstractDict, NamedTuple})
     return nothing
 end
 
-show_meta(io::IO, meta::Nothing) = nothing
-function show_meta(io::IO, meta::Union{AbstractDict, NamedTuple})
-    for (key, value) in pairs(meta)
-        print(io, "    ")
-        print(io, key)
-        print(io, " = ")
-        show(io, value)
-        print(io, '\n')
-    end
-    return nothing
-end
-
 function savedot(io::IO, meta::AbstractMetaGraph)
     dash = if is_directed(meta)
         print(io, "digraph {\n")
@@ -128,7 +95,16 @@ function savedot(io::IO, meta::AbstractMetaGraph)
         "--"
     end
 
-    show_meta(io, meta.graph_meta)
+    graph_meta = meta.graph_meta
+    if graph_meta !== nothing
+        for (key, value) in pairs(graph_meta)
+            print(io, "    ")
+            print(io, key)
+            print(io, " = ")
+            show(io, value)
+            print(io, '\n')
+        end
+    end
 
     for vertex in vertices(meta)
         print(io, "    ")

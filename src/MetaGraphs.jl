@@ -215,13 +215,13 @@ julia> using MetaGraphs
 
 julia> using LightGraphs: Edge, Graph
 
-julia> test = meta_graph(Graph(), AtEdge = Symbol);
+julia> test_graph = meta_graph(Graph(), AtEdge = Symbol);
 
-julia> push!(test, nothing); push!(test, nothing); push!(test, nothing);
+julia> push!(test_graph, nothing); push!(test_graph, nothing); push!(test_graph, nothing);
 
-julia> test[Edge(1, 2)] = :a; test[Edge(2, 3)] = :b;
+julia> test_graph[Edge(1, 2)] = :a; test_graph[Edge(2, 3)] = :b;
 
-julia> filter_edges(test, isequal(:a))
+julia> filter_edges(test_graph, isequal(:a))
 1-element Array{LightGraphs.SimpleGraphs.SimpleEdge{Int64},1}:
  Edge 1 => 2
 ```
@@ -240,11 +240,11 @@ julia> using MetaGraphs
 
 julia> using LightGraphs: Graph
 
-julia> test = meta_graph(Graph(), AtVertex = Symbol);
+julia> test_graph = meta_graph(Graph(), AtVertex = Symbol);
 
-julia> push!(test, :a); push!(test, :b);
+julia> push!(test_graph, :a); push!(test_graph, :b);
 
-julia> filter_vertices(test, isequal(:a))
+julia> filter_vertices(test_graph, isequal(:a))
 1-element Array{Int64,1}:
  1
 ```
