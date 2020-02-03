@@ -33,12 +33,14 @@ julia> using MetaGraphs
 julia> using LightGraphs
 
 julia> test_graph = meta_graph(DiGraph(),
-            AtVertex = Dict{Symbol, String},
-            AtEdge = Dict{Symbol, String},
-            graph_meta = (tag_1 = true, tag_2 = true)
+            AtVertex = Dict{Symbol, Any},
+            AtEdge = Dict{Symbol, Any},
+            graph_meta = (tagged = true,)
         );
 
-julia> push!(test_graph, Dict(:name => "a")); push!(test_graph, Dict(:name => "b"));
+julia> push!(test_graph, Dict(:name => "a", :number => 1));
+
+julia> push!(test_graph, Dict(:name => "b", :number => 2));
 
 julia> test_graph[Edge(1, 2)] = Dict(:name => "ab");
 
@@ -47,10 +49,9 @@ julia> mktemp() do file, io
             print(read(file, String))
         end
 digraph {
-    tag_1 = true
-    tag_2 = true
-    1 [name = "a"]
-    2 [name = "b"]
+    tagged = true
+    1 [name = "a", number = 1]
+    2 [name = "b", number = 2]
     1 -> 2 [name = "ab"]
 }
 ```

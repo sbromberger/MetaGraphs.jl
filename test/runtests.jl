@@ -41,6 +41,7 @@ rock_paper_scissors_copy = copy(rock_paper_scissors)
     @test has_vertex(rock_paper_scissors, rock)
     @test issubset(rock_paper, rock_paper_scissors)
     @test SimpleDiGraph(rock_paper_scissors) isa SimpleDiGraph
+    @test is_directed(rock_paper_scissors)
 end
 
 @testset "Double check deletion" begin
