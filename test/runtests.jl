@@ -69,3 +69,23 @@ graph_weights = weights(weighted_graph)
     @test graph_weights[rock, paper] == 1.0
     @test size(graph_weights) == (3, 3)
 end
+
+undirected = meta_graph(Graph(),
+    AtVertex = Nothing,
+    AtEdge = Nothing
+)
+push!(undirected, nothing)
+push!(undirected, nothing)
+undirected[Edge(2, 1)] = nothing
+
+@test !is_directed(undirected)
+@test mktemp() do file, io
+    savegraph(file, undirected, DOTFormat())
+    read(file, String)
+end == """
+graph {
+    1
+    2
+    1 -- 2
+}
+"""
