@@ -180,11 +180,11 @@ false
 julia> has_vertex(colors, 1)
 true
 
-julia> LightGraphs.SimpleGraphs.fadj(colors, 1)
-0-element Array{Int64,1}
+julia> LightGraphs.SimpleGraphs.fadj(colors, 1) == Int[]
+true
 
-julia> LightGraphs.SimpleGraphs.badj(colors, 1)
-0-element Array{Int64,1}
+julia> LightGraphs.SimpleGraphs.badj(colors, 1) == Int[]
+true
 
 julia> colors == colors
 true
