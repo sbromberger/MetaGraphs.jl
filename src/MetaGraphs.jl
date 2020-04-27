@@ -3,306 +3,299 @@ using LightGraphs
 using JLD2
 
 import Base:
-    eltype, show, ==, Pair,
+    eltype, show, ==,
     Tuple, copy, length, size,
-    issubset, zero, getindex, delete!, haskey, push!, setindex!
+    issubset, zero, getindex, haskey, setindex!, delete!
 
 import LightGraphs:
-    AbstractGraph, src, dst, edgetype, nv,
+    AbstractGraph, edgetype, nv,
     ne, vertices, edges, is_directed,
     add_vertex!, add_edge!, rem_vertex!, rem_edge!,
     has_vertex, has_edge, inneighbors, outneighbors,
-    weights, indegree, outdegree, degree,
+    weights,
     induced_subgraph,
     loadgraph, savegraph, AbstractGraphFormat,
     reverse
 
 import LightGraphs.SimpleGraphs:
-    AbstractSimpleGraph, SimpleGraph, SimpleDiGraph,
-    SimpleEdge, fadj, badj
+    SimpleGraph, SimpleDiGraph,
+    fadj, badj
 
 export
-    AbstractMetaGraph,
     MetaGraph,
-    MetaDiGraph,
-    meta_graph,
-    weight_type,
-    default_weight,
-    weight_function,
-    filter_edges,
-    filter_vertices,
+    weighttype,
+    defaultweight,
+    weightfunction,
     MGFormat,
     DOTFormat,
     reverse
 
-abstract type AbstractMetaGraph{Vertex <: Integer, InnerGraph <: AbstractGraph, AtVertex, AtEdge, GraphMeta, WeightFunction, Weight <: Real} <: AbstractGraph{Vertex} end
+include("metagraph.jl")
 
-function show(io::IO, meta::AbstractMetaGraph{<: Any, <: Any, AtVertex, AtEdge, GraphMeta, <: Any, Weight}) where {AtVertex, AtEdge, GraphMeta, Weight}
-    print(io, "Meta graph based on a $(meta.inner_graph) with $AtVertex(s) at vertices, $AtEdge(s) at edges, $GraphMeta metadata, $Weight weights, and default weight $(meta.default_weight)")
+function show(io::IO, g::MetaGraph{<: Any, Label, <: Any, VertexMeta, EdgeMeta}) where {Label, VertexMeta, EdgeMeta}
+    print(io, "Meta graph based on a $(g.graph) with vertices indexed by $Label(s), $VertexMeta(s) vertex metadata, $EdgeMeta(s) edge metadata, $(repr(g.gprops)) as graph metadata, and default weight $(g.defaultweight)")
 end
 
-@inline fadj(meta::AbstractMetaGraph, arguments...) =
-    fadj(meta.inner_graph, arguments...)
-@inline badj(meta::AbstractMetaGraph, arguments...) =
-    badj(meta.inner_graph, arguments...)
+@inline fadj(g::MetaGraph, x...) = fadj(g.graph, x...)
+@inline badj(g::MetaGraph, x...) = badj(g.graph, x...)
 
-eltype(meta::AbstractMetaGraph) = eltype(meta.inner_graph)
-edgetype(meta::AbstractMetaGraph) = edgetype(meta.inner_graph)
-nv(meta::AbstractMetaGraph) = nv(meta.inner_graph)
-vertices(meta::AbstractMetaGraph) = vertices(meta.inner_graph)
 
-ne(meta::AbstractMetaGraph) = ne(meta.inner_graph)
-edges(meta::AbstractMetaGraph) = edges(meta.inner_graph)
+eltype(g::MetaGraph) = eltype(g.graph)
+edgetype(g::MetaGraph) = edgetype(g.graph)
+nv(g::MetaGraph) = nv(g.graph)
+vertices(g::MetaGraph) = vertices(g.graph)
 
-has_vertex(meta::AbstractMetaGraph, arguments...) =
-    has_vertex(meta.inner_graph, arguments...)
-@inline has_edge(meta::AbstractMetaGraph, arguments...) =
-    has_edge(meta.inner_graph, arguments...)
+ne(g::MetaGraph) = ne(g.graph)
+edges(g::MetaGraph) = edges(g.graph)
 
-inneighbors(meta::AbstractMetaGraph, vertex::Integer) =
-    inneighbors(meta.inner_graph, vertex)
-outneighbors(meta::AbstractMetaGraph, vertex::Integer) = fadj(meta.inner_graph, vertex)
+has_vertex(g::MetaGraph, x...) = has_vertex(g.graph, x...)
+@inline has_edge(g::MetaGraph, x...) = has_edge(g.graph, x...)
 
-issubset(meta::AbstractMetaGraph, meta2::AbstractMetaGraph) =
-    issubset(meta.inner_graph, meta2.inner_graph)
+inneighbors(g::MetaGraph, v::Integer) = inneighbors(g.graph, v)
+outneighbors(g::MetaGraph, v::Integer) = fadj(g.graph, v)
 
-@inline add_edge!(meta::AbstractMetaGraph, arguments...) =
-    add_edge!(meta.inner_graph, arguments...)
+issubset(g::T, h::T) where T <: MetaGraph = issubset(g.graph, h.graph)
 
-function setindex!(meta::AbstractMetaGraph, value, edge::AbstractEdge)
-    meta.edge_meta[maybe_order_edge(meta, edge)] = value
-    add_edge!(meta, edge)
-end
+"""
+    add_edge!(g, u, v, val)
 
-@inline function delete!(meta::AbstractMetaGraph, edge::Edge)
-    delete!(meta.edge_meta, maybe_order_edge(meta, edge))
-    rem_edge!(meta.inner_graph, edge)
-end
-@inline rem_edge!(meta::AbstractMetaGraph, edge::Edge) = delete!(meta, edge)
-
-add_vertex!(meta::AbstractMetaGraph) = add_vertex!(meta.inner_graph)
-function push!(meta::AbstractMetaGraph, value)
-    add_vertex!(meta)
-    last_vertex = nv(meta)
-    meta[last_vertex] = value
-    return last_vertex
-end
-
-function move_meta!(meta, old_edge::AbstractEdge, new_edge::AbstractEdge)
-    meta[new_edge] = pop!(meta.edge_meta, maybe_order_edge(meta, old_edge))
-    return nothing
-end
-
-function delete!(meta::AbstractMetaGraph, deleted_vertex::Integer)
-    moved_vertex = nv(meta)
-    # delete meta data for the old vertex
-    delete!(meta.vertex_meta, deleted_vertex)
-    for out_neighbor in outneighbors(meta, deleted_vertex)
-        delete!(meta, Edge(deleted_vertex, out_neighbor))
+Add an edge `(u, v)` to MetaGraph `g` having value `val`.
+"""
+function add_edge!(g::MetaGraph, u::Integer, v::Integer, val)
+    added = add_edge!(g.graph, u, v)
+    if added
+        metaindex = g.metaindex
+        g.eprops[arrange(g, metaindex[u], metaindex[v], u, v)] = val
     end
-    for in_neighbor in inneighbors(meta, deleted_vertex)
-        delete!(meta, Edge(in_neighbor, deleted_vertex))
+    added
+end
+
+@inline function rem_edge!(g::MetaGraph, u::Integer, v::Integer)
+    metaindex = g.metaindex
+    removed = rem_edge!(g.graph, u, v)
+    if removed
+        delete!(g.eprops, arrange(g, metaindex[u], metaindex[v], u, v))
     end
-    result =
-        if deleted_vertex != moved_vertex
-            # last vertex will move to the deleted vertex
-            # move its meta data head of time
-            if haskey(meta, moved_vertex)
-                meta[deleted_vertex] = pop!(meta.vertex_meta, moved_vertex)
-            end
-            for out_neighbor in outneighbors(meta, moved_vertex)
-                move_meta!(meta,
-                    Edge(moved_vertex, out_neighbor),
-                    Edge(deleted_vertex, out_neighbor)
-                )
-            end
-            for in_neighbor in inneighbors(meta, moved_vertex)
-                move_meta!(meta,
-                    Edge(in_neighbor, moved_vertex),
-                    Edge(in_neighbor, deleted_vertex)
-                )
-            end
-            moved_vertex => deleted_vertex
-        else
-            nothing
+    removed
+end
+
+"""
+    add_vertex!(g, label, val)
+
+Add a vertex to MetaGraph `g` with label `label` having value `val`.
+
+return true if the vertex has been added, false otherwise.
+"""
+function add_vertex!(g::MetaGraph, label, val)
+    added = add_vertex!(g.graph)
+    if added
+        v = nv(g)
+        g.vprops[label] = (v, val)
+        g.metaindex[v] = label
+    end
+    added
+end
+
+function _rem_vertex!(g, label, v)
+    vprops = g.vprops
+    eprops = g.eprops
+    metaindex = g.metaindex
+    lastv = nv(g)
+    for n in outneighbors(g, v)
+        delete!(eprops, arrange(g, label, metaindex[n], v, n))
+    end
+    for n in inneighbors(g, v)
+        delete!(eprops, arrange(g, metaindex[n], label,  n, v))
+    end
+    removed = rem_vertex!(g.graph, v)
+    if removed
+        if v != lastv # ignore if we're removing the last vertex.
+            lastl = metaindex[lastv]
+            _, lastvprops = vprops[lastl]
+            vprops[lastl] = v, lastvprops
+            metaindex[v] = lastl
         end
-    rem_vertex!(meta.inner_graph, deleted_vertex)
-    return result
-end
-rem_vertex!(meta::AbstractMetaGraph, vertex) = delete!(meta, vertex)
-
-struct MetaWeights{Weight <: Real, InnerAbstractMetaGraph} <: AbstractMatrix{Weight}
-    inner_meta_graph::InnerAbstractMetaGraph
+        delete!(vprops, label)
+        delete!(metaindex, lastv)
+    end
+    removed
 end
 
-show(io::IO, weights::MetaWeights) = print(io, "metaweights")
-show(io::IO, ::MIME"text/plain", weights::MetaWeights) = show(io, weights)
-
-MetaWeights(meta::AbstractMetaGraph) =
-    MetaWeights{weight_type(meta), typeof(meta)}(meta)
-
-function getindex(weights::MetaWeights{Weight}, in_vertex::Integer, out_vertex::Integer)::Weight where {Weight}
-    edge = Edge(in_vertex, out_vertex)
-    inner_meta_graph = weights.inner_meta_graph
-    if haskey(inner_meta_graph, edge)
-        Weight(inner_meta_graph.weight_function(inner_meta_graph[edge]))
+function rem_vertex!(g::MetaGraph, v::Integer)
+    exists = has_vertex(g, v)
+    if exists
+        _rem_vertex!(g, g.metaindex[v], v)
     else
-        inner_meta_graph.default_weight
+        false
     end
 end
 
-function size(weights::MetaWeights)
-    vertices = nv(weights.inner_meta_graph)
+struct MetaWeights{InnerMetaGraph, U <: Real} <: AbstractMatrix{U}
+    meta_graph::InnerMetaGraph
+end
+
+show(io::IO, x::MetaWeights) = print(io, "metaweights")
+show(io::IO, z::MIME"text/plain", x::MetaWeights) = show(io, x)
+
+MetaWeights(g::MetaGraph) = MetaWeights{typeof(g),weighttype(g)}(g)
+
+function getindex(w::MetaWeights, u::Int, v::Int)
+    g = w.meta_graph
+    metaindex = g.metaindex
+    if has_edge(g, u, v)
+        g.weightfunction(g[arrange(g, metaindex[u], metaindex[v], u, v)...])
+    else
+        g.defaultweight
+    end
+end
+
+function size(d::MetaWeights)
+    vertices = nv(d.meta_graph)
     (vertices, vertices)
 end
 
-weights(meta::AbstractMetaGraph) = MetaWeights(meta)
+weights(g::MetaGraph) = MetaWeights(g)
 
-weight_type(meta::AbstractMetaGraph{<: Any, <: Any, <: Any, <: Any, <: Any, <: Any, Weight}) where {Weight} =
-    Weight
+getindex(g::MetaGraph) = g.gprops
+function getindex(g::MetaGraph, label)
+    _, val = g.vprops[label]
+    val
+end
+getindex(g::MetaGraph, label_1, label_2) = g.eprops[arrange(g, label_1, label_2)]
 
-getindex(meta::AbstractMetaGraph, vertex::Integer) = meta.vertex_meta[vertex]
-getindex(meta::AbstractMetaGraph, edge::AbstractEdge) = meta.edge_meta[edge]
+haskey(g::MetaGraph, label) = haskey(g.vprops, label)
+haskey(g::MetaGraph, label_1, label_2) = haskey(g.eprops, arrange(g, label_1, label_2))
 
-haskey(meta::AbstractMetaGraph, vertex::Integer) =
-    haskey(meta.vertex_meta, vertex)
-haskey(meta::AbstractMetaGraph, edge::AbstractEdge) =
-    haskey(meta.edge_meta, edge)
+function setindex!(g::MetaGraph, val, label)
+    vprops = g.vprops
+    v = if haskey(vprops, label)
+        (v, _) = vprops[label]
+        v
+    else
+        add_vertex!(g.graph)
+        v = nv(g)
+        g.metaindex[v] = label
+        v
+    end
+    vprops[label] = (v, val)
+    return nothing
+end
 
-function setindex!(meta::AbstractMetaGraph, value, vertex::Integer)
-    meta.vertex_meta[vertex] = value
+function setindex!(g::MetaGraph, val, label_1, label_2)
+    vprops = g.vprops
+    u, _ = vprops[label_1]
+    v, _ = vprops[label_2]
+    add_edge!(g.graph, u, v)
+    g.eprops[arrange(g, label_1, label_2, u, v)] = val
+    return nothing
+end
+
+function delete!(g::MetaGraph, label)
+    if haskey(g, label)
+        v, _ = g.vprops[label]
+        _rem_vertex!(g, label, v)
+    end
+    return nothing
+end
+function delete!(g::MetaGraph, label_1, label_2)
+    vprops = g.vprops
+    u, _ = vprops[label_1]
+    v, _ = vprops[label_2]
+    rem_edge!(g.graph, u, v)
+    delete!(g.eprops, arrange(g, label_1, label_2, u, v))
     return nothing
 end
 
 """
-    weight_function(meta)
+    weighttype(g)
 
-Return the  weight function for metagraph `meta`.
+Return the weight type for metagraph `g`.
 
 ```jldoctest
 julia> using MetaGraphs
 
 julia> using LightGraphs: Graph
 
-julia> weight_function(meta_graph(Graph(), weight_function = identity))(0)
+julia> weighttype(MetaGraph(Graph(), defaultweight = 1.0))
+Float64
+```
+"""
+weighttype(g::MetaGraph{<: Any, <: Any, <: Any, <: Any, <: Any, <: Any, <:Any, Weight}) where {Weight} =
+    Weight
+
+"""
+    weightfunction(g)
+
+Return the weight function for metagraph `g`.
+
+```jldoctest
+julia> using MetaGraphs
+
+julia> using LightGraphs: Graph
+
+julia> weightfunction(MetaGraph(Graph(), weightfunction = identity))(0)
 0
 ```
 """
-weight_function(meta::AbstractMetaGraph) = meta.weight_function
+weightfunction(g::MetaGraph) = g.weightfunction
 
 """
-    default_weight(meta)
+    defaultweight(g)
 
-Return the default weight for metagraph `meta`.
+Return the default weight for metagraph `g`.
 
 ```jldoctest
 julia> using MetaGraphs
 
 julia> using LightGraphs: Graph
 
-julia> default_weight(meta_graph(Graph(), default_weight = 2.0))
-2.0
+julia> defaultweight(MetaGraph(Graph(), defaultweight = 2))
+2
 ```
 """
-default_weight(meta::AbstractMetaGraph) = meta.default_weight
+defaultweight(g::MetaGraph) = g.defaultweight
 
-"""
-    filter_edges(meta, a_function)
-
-Find edges for which `a_function` applied to the edge's metadata returns `true`.
-
-```jldoctest
-julia> using MetaGraphs
-
-julia> using LightGraphs: Edge, Graph
-
-julia> test_graph = meta_graph(Graph(), AtEdge = Symbol);
-
-julia> push!(test_graph, nothing); push!(test_graph, nothing); push!(test_graph, nothing);
-
-julia> test_graph[Edge(1, 2)] = :a; test_graph[Edge(2, 3)] = :b;
-
-julia> filter_edges(test_graph, isequal(:a))
-1-element Array{LightGraphs.SimpleGraphs.SimpleEdge{Int64},1}:
- Edge 1 => 2
-```
-"""
-filter_edges(meta::AbstractMetaGraph, a_function::Function) =
-    findall(a_function, meta.edge_meta)
-
-"""
-    filter_vertices(meta, a_function)
-
-Find vertices for which  `a_function` applied to the vertex's metadata returns
-`true`.
-
-```jldoctest
-julia> using MetaGraphs
-
-julia> using LightGraphs: Graph
-
-julia> test_graph = meta_graph(Graph(), AtVertex = Symbol);
-
-julia> push!(test_graph, :a); push!(test_graph, :b);
-
-julia> filter_vertices(test_graph, isequal(:a))
-1-element Array{Int64,1}:
- 1
-```
-"""
-filter_vertices(meta::AbstractMetaGraph, a_function::Function) =
-    findall(a_function, meta.vertex_meta)
-
-function copy_meta!(old_meta, new_meta, vertex_map)
-    for (new_vertex, old_vertex) in enumerate(vertex_map)
-        if haskey(old_meta, old_vertex)
-            new_meta[new_vertex] = old_meta[old_vertex]
-        end
+function _copy_props!(oldg::T, newg::T, vmap) where T <: MetaGraph
+    for (newv, oldv) in enumerate(vmap)
+        oldl = oldg.metaindex[oldv]
+        _, meta = oldg.vprops[oldl]
+        newg.metaindex[newv] = oldl
+        newg.vprops[oldl] = (newv, meta)
     end
-    for new_edge in edges(new_meta)
-        in_vertex, out_vertex = Tuple(new_edge)
-        old_edge = Edge(vertex_map[in_vertex], vertex_map[out_vertex])
-        if haskey(old_meta, old_edge)
-            new_meta[new_edge] = old_meta[old_edge]
-        end
+    for newe in edges(newg.graph)
+        metaindex = newg.metaindex
+        u, v = Tuple(newe)
+        label_1 = metaindex[u]
+        label_2 = metaindex[v]
+        newg.eprops[arrange(newg, label_1, label_2, u, v)] = oldg.eprops[arrange(oldg, label_1, label_2)]
     end
     return nothing
 end
 
-function induced_subgraph(meta::AbstractMetaGraph{Vertex}, vertices::AbstractVector{Vertex}) where {Vertex <: Integer}
-    induced_graph, vertex_map =
-        induced_subgraph(meta.inner_graph, vertices)
-    induced_meta =
-        typeof(meta)(induced_graph,
-            empty(meta.vertex_meta),
-            empty(meta.edge_meta),
-            meta.graph_meta,
-            meta.weight_function,
-            meta.default_weight
+function induced_subgraph(g::T, v::AbstractVector{U}) where T <: MetaGraph where U <: Integer
+    inducedgraph, vmap = induced_subgraph(g.graph, v)
+    newg =
+        MetaGraph(inducedgraph,
+            empty(g.vprops),
+            empty(g.eprops),
+            g.gprops,
+            g.weightfunction,
+            g.defaultweight,
+            empty(g.metaindex)
         )
-    copy_meta!(meta, induced_meta, vertex_map)
-    return induced_meta
+    _copy_props!(g, newg, vmap)
+    return newg, vmap
 end
 
 # TODO - would be nice to be able to apply a function to properties. Not sure
 # how this might work, but if the property is a vector, a generic way to append to
 # it would be a good thing.
 
-==(meta::AbstractMetaGraph, meta2::AbstractMetaGraph) = meta.inner_graph == meta2.inner_graph
+==(x::MetaGraph, y::MetaGraph) = x.graph == y.graph
 
-copy(meta::AbstractMetaGraph) = deepcopy(meta)
-
-zero(meta::AbstractMetaGraph{<:Any, InnerGraph, AtVertex, AtEdge, GraphMeta}) where {InnerGraph, AtVertex, AtEdge, GraphMeta} =
-    meta_graph(InnerGraph();
-        AtVertex = AtVertex,
-        AtEdge = AtEdge,
-        graph_meta = GraphMeta(),
-        weight_function = meta.weight_function,
-        default_weight = meta.default_weight
-    )
+copy(g::T) where T <: MetaGraph = deepcopy(g)
 
 include("metadigraph.jl")
-include("metagraph.jl")
 include("overrides.jl")
 include("persistence.jl")
 

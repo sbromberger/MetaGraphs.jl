@@ -31,12 +31,6 @@ git:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("MetaGraphs"); Pkg.test("MetaGraphs"; coverage=true)'
 
 after_success:
-  - julia --project=coverage coverage/submit.jl
-jobs:
-  allow_failures:
-    - julia: nightly
-  include:
-    - stage: "Documentation"
-      julia: 1.3
-      script: julia --project=docs/ docs/make.jl
-      after_success: skip
+  - julia -e 'using Pkg; cd(Pkg.dir("MetaGraphs")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps)'
+  - julia -e 'using Pkg; cd(Pkg.dir("MetaGraphs")); include(joinpath("docs", "make.jl"))'

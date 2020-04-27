@@ -3,18 +3,18 @@
 """
     struct MGFormat <: AbstractGraphFormat end
 
-You can save `AbstractMetaGraph`s in a `MGFormat`, currently based on `JLD2`.
+You can save `MetaGraph`s in a `MGFormat`, currently based on `JLD2`.
 
 ```jldoctest
 julia> using MetaGraphs
 
 julia> using LightGraphs: Edge, Graph,  loadgraph, savegraph
 
-julia> test_graph = meta_graph(Graph());
+julia> complicated = MetaGraph(Graph());
 
 julia> mktemp() do file, io
-            savegraph(file, test_graph)
-            loadgraph(file, "something", MGFormat()) == test_graph
+            savegraph(file, complicated)
+            loadgraph(file, "something", MGFormat()) == complicated
         end
 true
 ```
@@ -24,113 +24,128 @@ struct MGFormat <: AbstractGraphFormat end
 """
     struct DOTFormat <: AbstractGraphFormat end
 
-For supported metadata formats (edge.meta. AbstractDict, NamedTuple, Nothing), you
-can save `AbstractMetaGraph`s in `DOTFormat`.
+If all metadata types support `pairs` or are `nothing`, you can save `MetaGraph`s in `DOTFormat`.
 
 ```jldoctest DotFormat
 julia> using MetaGraphs
 
 julia> using LightGraphs
 
-julia> test_graph = meta_graph(DiGraph(),
-            AtVertex = Dict{Symbol, Any},
-            AtEdge = Dict{Symbol, Any},
-            graph_meta = (tagged = true,)
-        );
+julia> simple = MetaGraph(Graph());
 
-julia> push!(test_graph, Dict(:name => "a", :number => 1));
-
-julia> push!(test_graph, Dict(:name => "b", :number => 2));
-
-julia> test_graph[Edge(1, 2)] = Dict(:name => "ab");
+julia> simple[:a] = nothing; simple[:b] = nothing; simple[:a, :b] = nothing;
 
 julia> mktemp() do file, io
-            savegraph(file, test_graph, DOTFormat())
+            savegraph(file, simple, DOTFormat())
             print(read(file, String))
         end
-digraph {
+graph T {
+    a
+    b
+    a -- b
+}
+
+julia> complicated = MetaGraph(DiGraph(),
+            VertexMeta = Dict{Symbol, Int},
+            EdgeMeta = Dict{Symbol, Int},
+            gprops = (tagged = true,)
+        );
+
+julia> complicated[:a] = Dict(:code_1 => 1, :code_2 => 2);
+
+julia> complicated[:b] = Dict(:code => 2);
+
+julia> complicated[:a, :b] = Dict(:code => 12);
+
+julia> mktemp() do file, io
+            savegraph(file, complicated, DOTFormat())
+            print(read(file, String))
+        end
+digraph G {
     tagged = true
-    1 [name = "a", number = 1]
-    2 [name = "b", number = 2]
-    1 -> 2 [name = "ab"]
+    a [code_1 = 1, code_2 = 2]
+    b [code = 2]
+    a -> b [code = 12]
 }
 ```
 """
 struct DOTFormat <: AbstractGraphFormat end
 
-function loadgraph(filename::AbstractString, ::String, ::MGFormat)
-    @load filename meta
-    return meta
+function loadmg(fn::AbstractString)
+    @load fn g
+    return g
 end
-function savegraph(filename::AbstractString, meta::AbstractMetaGraph)
-    @save filename meta
+
+function savemg(fn::AbstractString, g::MetaGraph)
+    @save fn g
     return 1
 end
 
+loadgraph(fn::AbstractString, gname::String, ::MGFormat) = loadmg(fn)
+savegraph(fn::AbstractString, g::MetaGraph) =  savemg(fn, g)
+
 function show_meta_list(io::IO, meta)
-    if meta !== nothing && !isempty(meta)
-        print(io, " [")
-        first_one = true
-        for (key, value) in pairs(meta)
-            if first_one
-                first_one = false
+    if meta !== nothing && length(meta) > 0
+        next = false
+        write(io, " [")
+        for (key, value) in meta
+            if next
+                write(io, ", ")
             else
-                print(io, ", ")
+                next = true
             end
-            print(io, key)
-            print(io, " = ")
+            write(io, key)
+            write(io, " = ")
             show(io, value)
         end
-        print(io, ']')
+        write(io, "]")
     end
-    return nothing
 end
 
-function savedot(io::IO, meta::AbstractMetaGraph)
-    dash = if is_directed(meta)
-        print(io, "digraph {\n")
-        "->"
+function savedot(io::IO, g::MetaGraph)
+    gprops = g.gprops
+    metaindex = g.metaindex
+
+    if is_directed(g)
+        write(io, "digraph G {\n")
+        dash = "->"
     else
-        print(io, "graph {\n")
-        "--"
+        write(io, "graph T {\n")
+        dash = "--"
     end
 
-    graph_meta = meta.graph_meta
-    if graph_meta !== nothing
-        for (key, value) in pairs(graph_meta)
-            print(io, "    ")
-            print(io, key)
-            print(io, " = ")
+    if gprops !== nothing
+        for (key, value) in pairs(gprops)
+            write(io, "    ")
+            write(io, key)
+            write(io, " = ")
             show(io, value)
-            print(io, '\n')
+            write(io, '\n')
         end
     end
 
-    for vertex in vertices(meta)
-        print(io, "    ")
-        show(io, vertex)
-        show_meta_list(io, meta[vertex])
-        print(io, '\n')
+    for label in keys(g.vprops)
+        write(io, "    ")
+        write(io, label)
+        show_meta_list(io, g[label])
+        write(io, '\n')
     end
 
-    for edge in edges(meta)
-        print(io, "    ")
-        in_vertex, out_vertex = Tuple(edge)
-        print(io, in_vertex)
-        print(io, ' ')
-        print(io, dash)
-        print(io, ' ')
-        show(io, out_vertex)
-        show_meta_list(io, meta[edge])
-        print(io, '\n')
+    for (label_1, label_2) in keys(g.eprops)
+        write(io, "    ")
+        write(io, label_1)
+        write(io, ' ')
+        write(io, dash)
+        write(io, ' ')
+        write(io, label_2)
+        show_meta_list(io, g.eprops[arrange(g, label_1, label_2)])
+        write(io, "\n")
     end
     write(io, "}\n")
-    return nothing
 end
 
-function savegraph(filename::AbstractString, meta::AbstractMetaGraph, ::DOTFormat)
-    open(filename, "w") do io
-        savedot(io, meta)
+function savegraph(fn::AbstractString, g::MetaGraph, ::DOTFormat)
+    open(fn, "w") do fp
+        savedot(fp, g)
     end
-    return nothing
 end
