@@ -205,10 +205,14 @@ function getindex(g::AbstractMetaGraph, prop::Symbol)
 end
 
 function getindex(g::AbstractMetaGraph, indx::Any, prop::Symbol)
+    !haskey(g, indx, prop) && error("No node with prop $prop and key $indx")
+    return g.metaindex[prop][indx]
+end
+
+function Base.haskey(g::AbstractMetaGraph, indx::Any, prop::Symbol)
     haskey(g.metaindex, prop) || error("':$prop' is not an index")
     typeof(indx) <: eltype(keys(g.metaindex[prop])) || error("Index type does not match keys of metaindex '$prop'")
-    !haskey(g.metaindex[prop], indx) && error("No node with prop $prop and key $indx")
-    return g.metaindex[prop][indx]
+    return haskey(g.metaindex[prop], indx)
 end
 
 function getindex(g::AbstractMetaGraph, indx::Integer, prop::Symbol)
