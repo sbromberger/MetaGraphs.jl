@@ -28,6 +28,10 @@ julia> g = path_graph(5)
 julia> mg = MetaGraph(g, 3.0)
 {5, 4} undirected Int64 metagraph with Float64 weights defined by :weight (default weight 3.0)
 
+# create a directed metagraph based on the simplegraph, with optional default edgeweight
+julia> mdg = MetaDiGraph(g, 3.0)
+{5, 8} directed Int64 metagraph with Float64 weights defined by :weight (default weight 3.0)
+
 # set some properties for the graph itself
 julia> set_prop!(mg, :description, "This is a metagraph.")
 Dict{Symbol,Any} with 1 entry:
