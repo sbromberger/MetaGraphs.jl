@@ -37,7 +37,12 @@ function savedot(io::IO, g::AbstractMetaGraph)
         end
         for p in props(g, v)
             key = p[1]
-            write(io, "$key=\"$(p[2])\",")
+            if  key .=== :label && occursin(r"<+.*>+$", p[2])
+                # The label is an HTML string, no additional quotes here.
+                write(io, "$key=$(p[2]),")
+            else
+                write(io, "$key=\"$(p[2])\",")
+            end
         end
         if length(props(g, v)) > 0
             write(io, "];")
