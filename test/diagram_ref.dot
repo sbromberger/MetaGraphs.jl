@@ -24,6 +24,7 @@ pack=true;
 22 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="cases",label="Flu\nCases",shape="record",];
 23 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="prices",label="Vacc\nPrice",shape="record",];
 24 [ color="#5DADE2",style="filled",penwidth="2.0",fillcolor="#dddddd",name="regres",label="Regression",shape="record",];
+25 [ color="#000000",style="filled",penwidth="2.0",fillcolor="#dddddd",name="html",label=<<U><B>Title </B></U> <BR/> Some text.>,shape="record",];
 1 -> 19 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
 3 -> 15 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
 3 -> 20 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
@@ -51,4 +52,5 @@ pack=true;
 22 -> 24 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
 23 -> 24 [ color=missing, dir=none, penwidth=missing, style=missing, ]
 24 -> 2 [ color=orange, dir=none, penwidth=4.0, style=solid, ]
+25 -> 4 [ color=black, dir=none, penwidth=2.0, style=solid, ]
 }
