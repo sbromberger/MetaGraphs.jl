@@ -56,7 +56,7 @@ is_directed(g::MetaDiGraph) = true
 
 weighttype(g::MetaDiGraph{T,U}) where T where U = U
 
-props(g::MetaDiGraph, e::SimpleEdge) = get(() -> PropDict(), g.eprops, e)
+props(g::MetaDiGraph, e::SimpleEdge) = get(PropDict, g.eprops, e)
 
 function set_props!(g::MetaDiGraph, e::SimpleEdge, d::Dict)
     if has_edge(g, e)

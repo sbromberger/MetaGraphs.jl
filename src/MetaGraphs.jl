@@ -237,7 +237,7 @@ Return a dictionary of all metadata from graph `g`, vertex `v`, or edge `e`
 (optionally referenced by source vertex `s` and destination vertex `d`).
 """
 props(g::AbstractMetaGraph) = g.gprops
-props(g::AbstractMetaGraph, v::Integer) = get(() -> PropDict(), g.vprops, v)
+props(g::AbstractMetaGraph, v::Integer) = get(PropDict, g.vprops, v)
 # props for edges is dependent on directedness.
 props(g::AbstractMetaGraph, u::Integer, v::Integer) = props(g, Edge(u, v))
 
