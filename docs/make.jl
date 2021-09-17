@@ -8,7 +8,7 @@ cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.
 
 makedocs(
     modules = [MetaGraphs],
-    sitename = "FrankWolfe",
+    sitename = "MetaGraphs",
     format = Documenter.HTML(prettyurls=get(ENV, "CI", nothing) == "true"),
     pages = Any[
         "Overview"             => "index.md",
