@@ -1,10 +1,15 @@
 # MetaGraphs
 
-[![Build Status](https://travis-ci.org/JuliaGraphs/MetaGraphs.jl.svg?branch=master)](https://travis-ci.org/JuliaGraphs/MetaGraphs.jl)
-[![codecov.io](http://codecov.io/github/JuliaGraphs/MetaGraphs.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaGraphs/MetaGraphs.jl?branch=master)
+[![Build Status][build-img]][build-url]
+[![Codecov branch][codecov-img]][codecov-url]
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliagraphs.github.io/MetaGraphs.jl/latest)
 
 [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl) graphs with arbitrary metadata.
+
+[build-img]: https://github.com/JuliaGraphs/Metagraphs.jl/workflows/CI/badge.svg?branch=master
+[build-url]: https://github.com/JuliaGraphs/Metagraphs.jl/actions?query=workflow%3ACI
+[codecov-img]: http://codecov.io/github/JuliaGraphs/Metagraphs.jl/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/JuliaGraphs/Metagraphs.jl?branch=master
 
 ## Documentation
 Full documentation is available at [GitHub Pages](https://juliagraphs.github.io/MetaGraphs.jl/latest).
