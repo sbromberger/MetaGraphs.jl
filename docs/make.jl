@@ -8,23 +8,16 @@ cp(normpath(@__FILE__, "../../LICENSE.md"), normpath(@__FILE__, "../src/license.
 
 makedocs(
     modules = [MetaGraphs],
-    format = :html,
     sitename = "MetaGraphs",
-    pages    = Any[
+    format = Documenter.HTML(prettyurls=get(ENV, "CI", nothing) == "true"),
+    pages = Any[
         "Overview"             => "index.md",
         "MetaGraphs Functions" => "metagraphs.md",
         "License Information"  => "license.md"
-    ]
+    ],
 )
 
-deploydocs(
-    deps=nothing,
-    make=nothing,
-    repo="github.com/JuliaGraphs/MetaGraphs.jl.git",
-    target="build",
-    julia="0.6",
-    osname = "linux"
-)
-    
+deploydocs(repo="github.com/JuliaGraphs/Metagraphs.jl.git", push_preview=true)
+
 rm(normpath(@__FILE__, "../src/index.md"))
 rm(normpath(@__FILE__, "../src/license.md"))
