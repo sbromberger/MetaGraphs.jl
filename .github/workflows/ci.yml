@@ -15,6 +15,9 @@ jobs:
           - version: '1'
             os: ubuntu-latest
             arch: x64
+          - version: '1.5'
+            os: ubuntu-latest
+            arch: x64
           - version: '1'
             os: windows-latest
             arch: x64
@@ -43,3 +46,19 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - shell: bash
+        run: julia --project=docs -e "using Pkg; Pkg.develop(PackageSpec(path=pwd()))"
+      - shell: bash
+        run: julia --project=docs -e "using Pkg; Pkg.instantiate(); Pkg.build()"
+      - run: julia --project=docs docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
