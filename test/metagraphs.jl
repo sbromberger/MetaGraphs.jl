@@ -435,6 +435,12 @@ import Base64:
     @test get_prop(mga, 5, :prop) == "node5"
     @test get_prop(mga, 1, :prop) == "newnode1"
 
+    # test for 87
+    mdg = MetaDiGraph(2)
+    add_edge!(mdg, 2, 2)
+    rem_vertex!(mdg, 1)
+    @test neighbors(mdg, 1) == [1]
+    @test nv(mdg) == 1
 
 end
 
