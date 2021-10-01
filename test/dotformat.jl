@@ -30,7 +30,8 @@ property_set=[
     (src="cases",dst="regres",color="orange",penwidth="4.0",style="solid",),
     (src="weather",dst="temp",color="orange",penwidth="4.0",style="solid",),
     (src="demo",dst="age",color="orange",penwidth="4.0",style="solid",),
-    (src="regres",dst="cost",color="orange",penwidth="4.0",style="solid",)
+    (src="regres",dst="cost",color="orange",penwidth="4.0",style="solid",),
+    (src="html",dst="fed",color="black",penwidth="2.0",style="solid",)
 ]
 
 # name, label, color
@@ -59,9 +60,10 @@ vprops = [
     ("cases","Flu\\nCases","#5DADE2"),
     ("prices","Vacc\\nPrice","#5DADE2"),
     ("regres", "Regression", "#5DADE2"),
+    ("html", "<<U><B>Title </B></U> <BR/> Some text.>", "#000000"),
 ]
 
-g = MetaDiGraph(24)
+g = MetaDiGraph(25)
 
 set_prop!(g, :pack, true)
 
@@ -95,11 +97,38 @@ for v in vertices(g)
     set_prop!(g, v, :penwidth, 2.0)
 end
 
-savegraph("diagram.dot", g, DOTFormat())
-open("diagram_ref.dot") do fp
-    s_ref = read(fp)
-    open("diagram.dot") do fp
-        s = read(fp)
-        @test s == s_ref
+@testset "dotio" begin
+    savegraph("diagram.dot", g, DOTFormat())
+    open("diagram_ref.dot") do fp
+        s_ref = read(fp)
+        open("diagram.dot") do fp
+            s = read(fp)
+            @test s == s_ref
+        end
+
+    # Verify that HTML labels are saved without quotes, but that "conventional" (non-html) labels are saved with quotes.
+    # The label attribute should be either delimited by:
+    #   - "..."     : OK
+    #   - <...>     : OK
+    #   - both      : NOK ("< or >" as bounding characters, resulting HTML in file will not be parsed correctly by dot.)
+    quote_regex = r"label\s*=\s*\"(?:[^\"\\]|\\.)*\"" # source: https://stackoverflow.com/questions/249791/regex-for-quoted-string-with-escaping-quotes
+    html_regex = r"label\s*=\s*<.*>" 
+    invalid_quote_regex = r"label\s*=\s*\"<(?:[^\"\\]|\\.)*>\""
+    for line in eachline(fp)
+            test_val = false
+            if  !occursin(r"label\s*=",line)
+                # the line does not contain a "label" attribute
+                test_val = true
+            elseif occursin(quote_regex, line)
+                # check if a "< or >" combination is present as outer delimiter, this shouldn't occur.
+                test_val =  !occursin(invalid_quote_regex, line)
+            elseif occursin(html_regex, line)
+                # no worries, proper HTML surrounding brackets found.
+                test_val = true
+            end
+        @test test_val 
     end
+end
+
+
 end
