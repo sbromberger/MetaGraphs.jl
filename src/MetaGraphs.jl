@@ -169,6 +169,17 @@ function rem_vertex!(g::AbstractMetaGraph, v::Integer)
                 set_prop!(g, v, key, val)
             end
         end
+
+        # Map property keys to new node values
+        if lastv in keys(lasteoutprops)
+            lasteoutprops[v] = lasteoutprops[lastv]
+            delete!(lasteoutprops, lastv)
+        end
+        if lastv in keys(lasteinprops)
+            lasteinprops[v] = lasteinprops[lastv]
+            delete!(lasteinprops, lastv)
+        end
+
         for n in outneighbors(g, v)
             set_props!(g, v, n, lasteoutprops[n])
         end
