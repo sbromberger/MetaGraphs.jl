@@ -4,6 +4,8 @@
 [![Codecov branch][codecov-img]][codecov-url]
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliagraphs.github.io/MetaGraphs.jl/latest)
 
+**Project Status:** As of 8 October 2021 MetaGraphs is no longer under active development. It will remain available on Github at [sbromberger/MetaGraphs.jl](https://github.com/sbromberger/MetaGraphs.jl). The JuliaGraphs organization will continue to maintain packages that use LightGraphs and transition development over the long term.
+
 [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl) graphs with arbitrary metadata.
 
 [build-img]: https://github.com/JuliaGraphs/Metagraphs.jl/workflows/CI/badge.svg?branch=master
